@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="EDC Pocket">
+  <meta name="description" content="Unofficial EDC Orlando 2026 lineup, personal set planner, sharing, festival map, and calendar reminders.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>EDC Pocket · Orlando 2026</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080b17;--panel:#111625;--panel2:#191f32;--line:#28304b;--text:#f6f6ff;--muted:#9da9c4;--pink:#ff60bd;--cyan:#5cddf3;--purple:#a596ff;--radius:19px;--safe:env(safe-area-inset-bottom,0px)}
+    *{box-sizing:border-box}html{height:100%;scroll-behavior:smooth}body{margin:0;min-height:100%;background:radial-gradient(ellipse 750px 530px at 90% -12%,#282055 0%,transparent 65%),radial-gradient(ellipse 610px 370px at -18% 9%,#10344c 0%,transparent 65%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+    .shell{max-width:950px;margin:0 auto;padding:16px 16px calc(108px + var(--safe))}.site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 1px 19px}.brand{display:flex;gap:12px;align-items:center;min-width:0}.brand-icon{display:grid;place-items:center;width:49px;height:49px;border-radius:15px;background:linear-gradient(140deg,#262451,#092d45);border:1px solid #53418f;flex:none}.brand-icon svg{width:34px;height:34px}.brand-overline{font-size:10px;font-weight:850;letter-spacing:.19em;color:var(--cyan)}.brand-name{font-size:21px;line-height:1.1;letter-spacing:-.055em;font-weight:850}.header-links{display:flex;align-items:center;gap:7px}.header-pill{display:inline-flex;gap:6px;align-items:center;padding:8px 10px;border-radius:50px;font-size:11px;color:#b9c7e0;border:1px solid #34405b;background:#111928}.header-pill strong{color:var(--text)}.mini-dot{height:6px;width:6px;border-radius:100%;background:var(--cyan);box-shadow:0 0 7px var(--cyan)}
+    .hero{position:relative;overflow:hidden;border:1px solid #3c346c;border-radius:24px;background:linear-gradient(126deg,#24214d,#171d37 55%,#10283a);padding:24px 22px 21px;margin:0 0 18px}.hero:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-125px;top:-145px;border:42px solid #ff60bd17;box-shadow:0 0 0 28px #5cddf30e;pointer-events:none}.hero-label{font-size:11px;color:#bdafff;text-transform:uppercase;letter-spacing:.15em;font-weight:780}.hero h1{font-size:clamp(25px,5vw,38px);margin:9px 0 6px;line-height:1.06;letter-spacing:-.065em;max-width:500px}.hero p{color:#c0c5df;margin:0;font-size:13px;line-height:1.5;max-width:500px}.hero-metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.metric{border-radius:11px;background:#ffffff0d;border:1px solid #ffffff1b;display:flex;gap:7px;align-items:baseline;padding:9px 11px;font-size:12px;color:#c9cbea}.metric b{font-size:15px;color:#fff}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}.section-title h2{font-size:20px;letter-spacing:-.045em;margin:0}.subtle{color:var(--muted);font-size:12px}.days{display:flex;gap:8px;margin-bottom:17px}.day-button{flex:1;border:1px solid var(--line);background:#151a2b;border-radius:14px;padding:12px 7px;text-align:left;color:var(--muted);min-width:0}.day-button span{display:block;font-size:11px;font-weight:650}.day-button b{display:block;margin-top:3px;font-size:16px;color:#c7d0e5;letter-spacing:-.02em}.day-button.active{background:linear-gradient(120deg,#393164,#203953);border-color:#9781fb;color:#d9dcf9;box-shadow:inset 0 0 0 1px #6757b2}.day-button.active b{color:white}
+    .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:15px 0 10px}.search-wrap{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:13px;flex:1;min-width:185px;padding:0 12px;color:var(--muted)}.search-wrap input{color:var(--text);border:0;outline:0;background:none;width:100%;padding:13px 0;font-size:14px}.search-wrap input::placeholder{color:#7886a1}.seg{display:flex;align-items:center;padding:4px;border:1px solid var(--line);background:#111625;border-radius:13px;gap:2px}.seg button{border:0;background:none;color:var(--muted);padding:8px 13px;border-radius:9px;font-size:12px;font-weight:720}.seg button.active{color:white;background:#313755}.stage-filters{display:flex;gap:7px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}.stage-filters::-webkit-scrollbar{display:none}.chip{flex:none;border:1px solid #303852;background:#141a2b;border-radius:999px;color:#abb7ce;padding:8px 12px;font-size:12px;font-weight:700;white-space:nowrap}.chip.active{color:white;border-color:#7a7ec0;background:#303454}.small-button{border:1px solid #405071;color:#d9e4ff;border-radius:11px;background:#18223a;padding:10px 12px;font-weight:750;font-size:12px}.small-button:active,.chip:active,.day-button:active{transform:scale(.98)}.small-button.primary{border-color:#8d83e9;background:linear-gradient(135deg,#6556ae,#367493);color:#fff}.small-button.pink{background:#482748;border-color:#a95894;color:#ffd3f1}.result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0 11px}
+    .set-list{display:grid;grid-template-columns:1fr;gap:9px}.set-card{display:flex;align-items:stretch;gap:12px;border:1px solid #27324c;border-left:3px solid var(--stage);background:#131b2d;border-radius:14px;padding:13px 11px 13px 15px;min-height:78px}.set-card.picked{background:linear-gradient(108deg,#211f3c,#121f30);border-color:#575580;border-left-color:var(--stage)}.set-card.active-now{box-shadow:inset 0 0 0 1px #4ad2bf88}.set-time{flex:none;min-width:64px;display:flex;flex-direction:column;justify-content:center}.set-time b{font-size:15px;letter-spacing:-.035em}.set-time small{font-size:11px;color:var(--muted);margin-top:2px}.set-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}.set-info h3{font-size:15px;line-height:1.27;margin:0 0 6px;font-weight:785;letter-spacing:-.025em;overflow-wrap:anywhere}.stage-label{font-size:10px;font-weight:800;color:var(--stage);letter-spacing:.105em;text-transform:uppercase}.set-flag{font-size:10px;color:#ffd283;border-radius:6px;background:#f7a43a18;margin-left:6px;padding:2px 5px;white-space:nowrap}.add-set{flex:none;border:1px solid #425071;background:#25304a;color:#dbe5ff;width:38px;align-self:center;height:38px;border-radius:11px;font-size:25px;font-weight:350;display:grid;place-items:center}.add-set.selected{color:#1a1630;background:#c2b7ff;border-color:#c2b7ff;font-weight:800;font-size:19px}.empty{border:1px dashed #424b69;text-align:center;border-radius:17px;padding:34px 22px;color:var(--muted);background:#111625}.empty .empty-icon{font-size:31px;margin-bottom:9px;color:#a99cff}.empty h3{color:var(--text);margin:0 0 7px;font-size:17px}.empty p{font-size:13px;max-width:340px;margin:0 auto 16px;line-height:1.6}
+    .plan-heading{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding-bottom:8px}.statbox{flex:1;min-width:125px;padding:14px 15px;border:1px solid #323a56;background:#151c2f;border-radius:14px}.statbox b{display:block;font-size:26px;line-height:1.1;letter-spacing:-.05em}.statbox span{font-size:11px;color:var(--muted);margin-top:5px;display:block}.info-box{border:1px solid #374360;background:#131e31;border-radius:14px;padding:14px 15px;color:#b8c5da;font-size:12px;line-height:1.6;margin:13px 0}.info-box.warn{border-color:#7f5b47;background:#2b1f24;color:#edd4bd}.info-box strong{color:#fff}.plan-item{border:1px solid #323a56;border-radius:15px;background:#151c2e;padding:14px;margin-bottom:9px}.plan-main{display:flex;align-items:center;gap:11px}.plan-time{min-width:65px;font-size:13px;font-weight:760}.plan-main-info{flex:1;min-width:0}.plan-main-info strong{font-size:15px;display:block;line-height:1.25;margin-bottom:4px}.plan-main-info span{font-size:11px;color:var(--stage);font-weight:760;letter-spacing:.05em}.plan-notes{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}.microtag{font-size:10px;font-weight:710;border-radius:8px;padding:5px 7px;background:#293752;color:#a9d6ff}.microtag.clash{background:#5e3836;color:#ffcfbe}.microtag.friend{background:#324834;color:#b9f4c0}.microtag.tight{background:#58472e;color:#ffe0ad}
+    .grid-scroll{overflow-x:auto;border:1px solid #33405b;background:#111728;border-radius:16px;margin-top:10px;scrollbar-color:#575e83 transparent}.grid-head{display:flex;width:850px;position:sticky;top:0;z-index:3;background:#212743;border-bottom:1px solid #45506d}.grid-head .hour-spacer{width:57px;flex:none}.grid-head .grid-heading{width:158px;padding:11px 6px;font-size:10px;letter-spacing:.03em;font-weight:850;text-align:center;color:var(--stage);border-left:1px solid #353e58}.grid-chart{position:relative;width:850px;height:704px;background:repeating-linear-gradient(to bottom,#ffffff0a 0,#ffffff0a 1px,transparent 1px,transparent 64px)}.grid-hour{position:absolute;left:0;width:57px;font-size:11px;font-weight:750;color:#a9b7d2;padding:2px 5px}.grid-lane{position:absolute;top:0;bottom:0;width:158px;border-left:1px solid #2e3750}.grid-set{position:absolute;left:4px;right:4px;border:1px solid var(--stage);border-radius:8px;background:color-mix(in srgb,var(--stage) 21%,#151d30);color:white;padding:5px 5px;overflow:hidden;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:11px}.grid-set.picked{background:color-mix(in srgb,var(--stage) 50%,#14192b)}.grid-set strong{font-size:11px;line-height:1.12;display:block;font-weight:800;overflow:hidden}.grid-set small{font-size:9px;color:#e1e7f5}.grid-foot{font-size:11px;color:var(--muted);margin:9px 0 15px}
+    .map-frame{border:1px solid #34405a;background:#111828;border-radius:18px;padding:10px;overflow:hidden}.map-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 9px}.map-viewport{overflow:auto;max-height:530px;border-radius:11px;background:#101525;border:1px solid #333950;touch-action:pan-x pan-y}.map-canvas{position:relative;min-width:100%;line-height:0;user-select:none}.map-image{width:100%;display:block;pointer-events:none}.pin{position:absolute;transform:translate(-50%,-100%);z-index:1;white-space:nowrap;filter:drop-shadow(0 2px 3px #050713)}.pin-pill{background:#fff;color:#18152e;font-size:11px;font-weight:840;border-radius:20px;padding:6px 8px;line-height:1.2;box-shadow:0 0 0 3px #fc69bc}.pin:after{content:"";display:block;width:10px;height:10px;background:#ff71ba;border-radius:50%;margin:4px auto 0;border:2px solid white}.pin.friend .pin-pill{box-shadow:0 0 0 3px #5cddf3}.pin.friend:after{background:#5cddf3}.map-canvas.dropping{cursor:crosshair}.map-credit{color:#8695b4;font-size:11px;margin:9px 2px 2px;line-height:1.5}.stage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stage-link{border:1px solid #323c59;border-left:3px solid var(--stage);background:#141d2e;border-radius:13px;padding:14px;color:var(--text);text-align:left;font-size:13px;font-weight:770}.stage-link small{display:block;color:var(--muted);font-size:10px;font-weight:500;margin-top:5px}
+    .tool-card{background:#151c2e;border:1px solid #333d5a;border-radius:16px;padding:17px;margin-bottom:11px}.tool-card h3{font-size:16px;letter-spacing:-.025em;margin:0 0 6px}.tool-card p{font-size:12px;line-height:1.6;margin:0 0 13px;color:#a8b6cf}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions .small-button{min-height:40px}.select-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;padding:10px 0}.select-row select{border:1px solid #44516d;color:white;background:#202a42;border-radius:9px;padding:9px}.source-links{display:flex;flex-wrap:wrap;gap:8px}.source-links a{border:1px solid #414d6c;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:700;background:#182037}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;justify-content:space-around;border-top:1px solid #343d60;background:#0d1221f5;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:7px max(12px,calc((100vw - 930px)/2)) calc(8px + var(--safe));box-shadow:0 -10px 35px #080b1770}.nav-btn{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#8695af;font-size:10px;font-weight:730;min-width:72px;padding:6px 7px 4px;border-radius:12px}.nav-btn.active{color:#eee3ff;background:#302749}.nav-btn svg{height:21px;width:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.toast{position:fixed;z-index:30;bottom:calc(92px + var(--safe));left:50%;transform:translate(-50%,10px);max-width:min(92vw,500px);width:max-content;opacity:0;pointer-events:none;background:#edf6ff;color:#15182f;border:1px solid #98b7d8;box-shadow:0 12px 40px #0008;border-radius:13px;padding:13px 17px;font-size:13px;font-weight:690;transition:.2s}.toast.show{transform:translate(-50%,0);opacity:1}.kicker{font-size:11px;letter-spacing:.13em;color:#b8aaff;font-weight:830;text-transform:uppercase}.mini-title{font-weight:800;font-size:13px;margin:12px 0 7px}.footnote{font-size:11px;line-height:1.5;color:#7e8ba4;margin:19px 2px}.divider{height:1px;background:var(--line);margin:15px 0}
+    @media (min-width:640px){.shell{padding:25px 26px 120px}.set-list{grid-template-columns:repeat(2,minmax(0,1fr))}.set-card{min-height:88px}.stage-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:31px}.map-viewport{max-height:700px}.header-pill{padding:9px 14px}.brand-name{font-size:23px}}
+    @media(max-width:385px){.brand-name{font-size:18px}.header-pill{font-size:10px;padding:8px}.set-card{gap:8px;padding:12px 8px 12px 11px}.set-time{min-width:58px}.set-info h3{font-size:14px}.add-set{width:34px;height:34px}.day-button b{font-size:14px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <div class="brand"><div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><defs><linearGradient id="orb" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5ce6f6"/><stop offset="1" stop-color="#ff66c7"/></linearGradient></defs><circle cx="20" cy="20" r="15" fill="none" stroke="url(#orb)" stroke-width="2.8"/><path d="M9 24 18 9l3 15 10-7-9 14" fill="none" stroke="url(#orb)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg></div><div><div class="brand-overline">UNOFFICIAL FESTIVAL PLANNER</div><div class="brand-name">EDC <span style="color:var(--pink)">Pocket</span></div></div></div>
+      <div class="header-links"><span class="header-pill"><span class="mini-dot"></span><strong>ORLANDO</strong> '26</span></div>
+    </header>
+    <main id="view" aria-live="polite"></main>
+    <footer class="footnote">EDC Pocket is an independent fan-made planner, not affiliated with or endorsed by Insomniac or EDC. Times are a November 5, 2026 snapshot and may change. Always verify with official channels.</footer>
+  </div>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-btn active" data-tab="lineup" aria-label="Lineup"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h11"/><circle cx="19" cy="18" r="2"/></svg>Lineup</button>
+    <button class="nav-btn" data-tab="plan" aria-label="My Plan"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 4-4"/></svg>My Plan</button>
+    <button class="nav-btn" data-tab="map" aria-label="Festival Map"><svg viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15"/></svg>Map</button>
+    <button class="nav-btn" data-tab="tools" aria-label="Tools"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M4 12H2M22 12h-2M5.5 5.5 7.6 7.6M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/><circle cx="12" cy="12" r="5"/></svg>Tools</button>
+  </nav>
+  <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+  <input type="file" accept="application/json,.json" id="import-file" hidden>
+  <script>
+// Official EDC Orlando 2026 timetable snapshot, checked 2026-11-05.
+// All times are local to Orlando (EST). 12:00 AM is the next calendar day.
+// Sources: https://orlando.edc.com/lineup/set-times/ (and /day-2/, /day-3/).
+const RAW_SETS = String.raw`
+0|Kinetic|13:00|14:25|Zack Martino
+0|Kinetic|14:25|15:25|JOA
+0|Kinetic|15:25|16:25|HAYLA
+0|Kinetic|16:25|17:28|Pegassi
+0|Kinetic|17:28|18:43|Alesso (Sunset Set)
+0|Kinetic|18:47|19:57|KREAM
+0|Kinetic|20:00|21:10|Afrojack
+0|Kinetic|21:13|22:28|Mau P
+0|Kinetic|22:31|23:56|David Guetta
+0|Circuit|13:00|14:15|Sloth
+0|Circuit|14:15|15:30|Benda B2B Vastive
+0|Circuit|15:30|16:30|Big Florida
+0|Circuit|16:30|17:30|Kompany
+0|Circuit|17:30|18:30|Adventure Club (Sunset Set)
+0|Circuit|18:30|19:30|Bou B2B Kanine
+0|Circuit|19:30|20:30|Level Up
+0|Circuit|20:30|21:35|Whethan
+0|Circuit|21:35|22:45|Levity
+0|Circuit|22:45|24:00|Wooli
+0|Neon|13:00|15:00|Matthias
+0|Neon|15:00|16:30|Inbal
+0|Neon|16:30|18:00|Azzecca
+0|Neon|18:00|19:30|Obskûr (Sunset Set)
+0|Neon|19:30|21:00|Omar+
+0|Neon|21:00|22:30|Brunello
+0|Neon|22:30|24:00|Josh Baker
+0|Stereo|13:00|14:15|RAJE
+0|Stereo|14:15|15:30|AAT
+0|Stereo|15:30|16:30|IDEMI
+0|Stereo|16:30|17:30|Joshwa
+0|Stereo|17:30|18:45|MALUGI (Sunset Set)
+0|Stereo|18:45|20:00|Bullet Tooth B2B Sidney Charles
+0|Stereo|20:00|21:15|Interplanetary Criminal
+0|Stereo|21:15|22:30|MPH
+0|Stereo|22:30|24:00|Chris Lorenzo
+0|Bacardi|13:00|14:00|2AR
+0|Bacardi|14:00|15:00|Seeing Double
+0|Bacardi|15:00|16:30|Night Tales
+0|Bacardi|16:30|17:45|Me n ü
+0|Bacardi|17:45|19:00|AAT
+0|Bacardi|19:00|20:15|Eve Lauren
+0|Bacardi|20:15|21:30|Crespo
+0|Bacardi|21:30|22:45|Kashovski
+0|Bacardi|22:45|24:00|Chantel Jeffries
+1|Kinetic|13:00|13:33|Monoky
+1|Kinetic|13:33|14:33|Me n ü
+1|Kinetic|14:33|15:33|Twinsick
+1|Kinetic|15:33|16:33|Aaron Hibell
+1|Kinetic|16:33|17:38|ACRAZE B2B CID
+1|Kinetic|17:38|18:53|Alan Walker (Sunset Set)
+1|Kinetic|18:57|20:02|Nico Moreno
+1|Kinetic|20:05|21:10|Steve Aoki
+1|Kinetic|21:13|22:28|Disco Lines
+1|Kinetic|22:31|24:00|Kaskade
+1|Circuit|13:00|14:30|Fury with MC Dino
+1|Circuit|14:30|15:30|MADVKTM
+1|Circuit|15:30|16:30|Subsonic
+1|Circuit|16:30|17:30|AVELLO
+1|Circuit|17:30|18:30|Jkyl & Hyde
+1|Circuit|18:30|19:30|LAYZ
+1|Circuit|19:30|20:30|ALLEYCVT
+1|Circuit|20:30|21:30|Ray Volpe
+1|Circuit|21:35|22:45|Skull Machine (Black Tiger Sex Machine x Kai Wachi)
+1|Circuit|22:45|24:00|Alison Wonderland
+1|Neon|13:00|14:30|Mai Iachetti
+1|Neon|14:30|16:00|KinAhau
+1|Neon|16:00|17:30|Miguelle & Tons
+1|Neon|17:30|19:00|Luke Dean B2B George Smeddles (Sunset Set)
+1|Neon|19:00|20:30|Rossi.
+1|Neon|20:30|22:00|Dennis Cruz
+1|Neon|22:00|24:00|Franky Rizardo
+1|Stereo|13:00|14:30|Alves
+1|Stereo|14:30|15:30|Gabss
+1|Stereo|15:30|16:30|Greg 99
+1|Stereo|16:30|17:30|Fallon
+1|Stereo|17:30|18:45|Devault (Sunset Set)
+1|Stereo|18:45|20:00|Discip
+1|Stereo|20:00|21:15|Roddy Lima
+1|Stereo|21:15|22:30|AYYBO
+1|Stereo|22:30|24:00|ChaseWest
+1|Bacardi|13:00|14:00|JFUSE
+1|Bacardi|14:00|15:00|Landis
+1|Bacardi|15:00|16:30|RAJE
+1|Bacardi|16:30|18:00|Allnightkev
+1|Bacardi|18:00|19:30|Gabss
+1|Bacardi|19:30|21:00|CC Love
+1|Bacardi|21:00|22:30|Juos
+1|Bacardi|22:30|24:00|Rommii
+2|Kinetic|13:00|14:35|ESSE
+2|Kinetic|14:35|15:35|AR/CO
+2|Kinetic|15:35|16:35|Jessica Audiffred
+2|Kinetic|16:35|17:35|Ian Asher
+2|Kinetic|17:35|18:50|SLANDER (Sunset Set)
+2|Kinetic|18:54|19:59|I Hate Models
+2|Kinetic|20:02|21:12|Alok
+2|Kinetic|21:15|22:25|Hardwell
+2|Kinetic|22:28|23:56|Martin Garrix
+2|Circuit|13:00|13:10|DJ3piece
+2|Circuit|13:10|14:25|Bella Grazia
+2|Circuit|14:25|15:25|A Little Sound
+2|Circuit|15:25|16:25|Kaivon
+2|Circuit|16:35|17:25|San Holo (Wholesome Riddim Set)
+2|Circuit|17:25|18:40|Of The Trees (Sunset Set)
+2|Circuit|18:40|19:45|Meduza
+2|Circuit|19:45|20:45|Maddix
+2|Circuit|20:45|21:50|Deorro B2B DJ Diesel
+2|Circuit|21:50|22:55|ATLiens
+2|Circuit|22:55|24:00|Holy Priest
+2|Neon|13:00|15:00|Ultrathem
+2|Neon|15:00|16:30|SHDW
+2|Neon|16:30|18:00|Adrián Mills
+2|Neon|18:00|19:30|Marlon Hoffstadt (Sunset Set)
+2|Neon|19:30|21:00|Boys Noize B2B Brutalismus 3000
+2|Neon|21:00|22:30|KI/KI
+2|Neon|22:30|24:00|Klangkuenstler
+2|Stereo|13:00|14:10|M81!
+2|Stereo|14:10|15:10|CØNTRA
+2|Stereo|15:10|16:10|Chef Boyarbeatz
+2|Stereo|16:10|17:10|phrva
+2|Stereo|17:10|18:10|Sippy
+2|Stereo|18:15|19:20|Know Good
+2|Stereo|19:20|20:30|Taiki Nulight
+2|Stereo|20:30|21:40|Ravenscoon
+2|Stereo|21:40|22:50|Boogie T
+2|Stereo|22:50|24:00|TroyBoi
+2|Bacardi|13:00|14:00|Bryan Softwell B2B Chini
+2|Bacardi|14:00|15:00|Marian (BR)
+2|Bacardi|15:00|16:00|BROSA
+2|Bacardi|16:30|18:00|Alves
+2|Bacardi|18:00|19:30|Joe Vanditti
+2|Bacardi|19:30|21:00|Andrea Quintero
+2|Bacardi|21:00|22:30|Kofla
+2|Bacardi|22:30|24:00|William Kiss
+`;
+const STAGES = {
+  Kinetic: {label:'Kinetic Field', short:'KINETIC', color:'#9b8cff'},
+  Circuit: {label:'Circuit Grounds', short:'CIRCUIT', color:'#4ecbe5'},
+  Neon: {label:'Neon Garden', short:'NEON', color:'#fd7aae'},
+  Stereo: {label:'Stereo Bloom', short:'STEREO', color:'#ffc66d'},
+  Bacardi: {label:'CASA BACARDÍ', short:'BACARDÍ', color:'#a6df8f'}
+};
+const FESTIVAL_DAYS = [ '2026-11-06', '2026-11-07', '2026-11-08'];
+const SETS = RAW_SETS.trim().split('\n').map((line,id)=> {
+  const [day, stage, start, end, ...nameParts] = line.split('|');
+  const toMinute = t => {let [h,m]=t.split(':').map(Number);return h*60+m};
+  return {id, day:Number(day), stage, start:toMinute(start), end:toMinute(end), artist:nameParts.join('|')};
+});
+
+  </script>
+  <script>
+/* EDC Pocket – offline-friendly, zero-account festival planner. */
+(() => {
+  'use strict';
+  const $ = sel => document.querySelector(sel);
+  const view = $('#view');
+  const MAP_URL = 'https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/sites/44/2026/10/27141013/edco_2026_de_festival_map_1080x1350_r02.png';
+  const SOURCE_URL = 'https://orlando.edc.com/lineup/set-times/';
+  const DAYS = ['Friday','Saturday','Sunday'];
+  const SHORT = ['Fri, Nov 6','Sat, Nov 7','Sun, Nov 8'];
+  const KEY = 'edcpocket_2026_v1';
+  const DEFAULT = {selected:[], friendName:'My schedule', lead:15, meet:null};
+  const stored = (() => { try { const obj=JSON.parse(localStorage.getItem(KEY)); return obj&&typeof obj==='object'?obj:{}; } catch { return {}; } })();
+  const settings = {...DEFAULT,...stored};
+  settings.selected = new Set((Array.isArray(settings.selected)?settings.selected:[]).filter(id=>Number.isInteger(id)&&id>=0&&id<SETS.length));
+  const state = {tab:'lineup',day:Math.max(0,Math.min(2,new Date().getDate()>=6&&new Date().getMonth()===10&&new Date().getFullYear()===2026?new Date().getDate()-6:0)),mode:'list',stage:'All',search:'',planMode:'mine',mapZoom:1,drop:false,friend:null};
+  const stageEntries = Object.entries(STAGES);
+  const picked = () => [...settings.selected].map(id=>SETS[id]).filter(Boolean).sort(sortSets);
+  const dayPicked = () => picked().filter(s=>s.day===state.day);
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify({...settings,selected:[...settings.selected] }));}catch{toast('Storage is unavailable; export a backup to save your picks.')}}
+  function sortSets(a,b){return a.day-b.day||a.start-b.start||a.stage.localeCompare(b.stage)}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function fmt(min){const h=Math.floor(min/60);return `${h%12||12}:${String(min%60).padStart(2,'0')} ${h>=12&&h<24?'PM':'AM'}`}
+  function timeRange(s){return `${fmt(s.start)}–${fmt(s.end)}`}
+  function minutesUntil(s){return (new Date(2026,10,6+s.day,Math.floor(s.start/60),s.start%60).getTime()-Date.now())/60000}
+  function isOn(s){const t=minutesUntil(s);return t<=0&&t > -(s.end-s.start)}
+  function timeString(){return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+  function styleFor(s){return `style="--stage:${STAGES[s.stage].color}"`}
+  function dayControls(){return `<div class="days">${DAYS.map((d,i)=>`<button class="day-button ${state.day===i?'active':''}" data-day="${i}" aria-pressed="${state.day===i}"><span>${d}</span><b>Nov ${6+i}</b></button>`).join('')}</div>`}
+  function show(id,keepScroll=false){for(const b of document.querySelectorAll('.nav-btn')){b.classList.toggle('active',b.dataset.tab===id);b.setAttribute('aria-current',b.dataset.tab===id?'page':'false')}state.tab=id;view.innerHTML=({lineup:renderLineup,plan:renderPlan,map:renderMap,tools:renderTools}[id]||renderLineup)();if(!keepScroll)window.scrollTo({top:0,behavior:'instant'});if(id==='map')initMap()}
+  function render(){show(state.tab,true)}
+  function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),4200)}
+  function overlaps(s,list){return list.filter(other=>other.id!==s.id&&other.day===s.day&&other.start<s.end&&s.start<other.end)}
+  function tightTransition(s,list){return list.some(other=>other.id!==s.id&&other.day===s.day&&other.stage!==s.stage&&((other.start>=s.end&&other.start-s.end<=15)||(s.start>=other.end&&s.start-other.end<=15)))}
+  function sectionTitle(name,note){return `<div class="section-title"><h2>${name}</h2><span class="subtle">${note||''}</span></div>`}
+  function renderLineup(){const available=SETS.filter(s=>s.day===state.day);const filtered=available.filter(s=>(state.stage==='All'||s.stage===state.stage)&&(!state.search||s.artist.toLocaleLowerCase().includes(state.search.toLocaleLowerCase()))).sort(sortSets);const conflicts=picked();return `<section class="hero"><div class="hero-label">NOVEMBER 6–8 · TINKER FIELD</div><h1>Make every set count.</h1><p>The published 2026 lineup, your custom schedule, and a festival map—all in your pocket.</p><div class="hero-metrics"><div class="metric"><b>${SETS.length}</b> sets</div><div class="metric"><b>5</b> stages</div><div class="metric"><b>${settings.selected.size}</b> saved</div></div></section>${sectionTitle('Explore the lineup','Orlando time · EST')}${dayControls()}<div class="toolbar"><label class="search-wrap"><span aria-hidden="true">⌕</span><input id="set-search" type="search" placeholder="Find an artist..." aria-label="Find an artist" value="${esc(state.search)}"></label><div class="seg" role="group" aria-label="Schedule view"><button class="${state.mode==='list'?'active':''}" data-mode="list" aria-pressed="${state.mode==='list'}">List</button><button class="${state.mode==='grid'?'active':''}" data-mode="grid" aria-pressed="${state.mode==='grid'}">Grid</button></div></div><div class="stage-filters" aria-label="Filter by stage"><button class="chip ${state.stage==='All'?'active':''}" data-stage="All">All stages</button>${stageEntries.map(([key,v])=>`<button class="chip ${state.stage===key?'active':''}" data-stage="${key}">${esc(v.label)}</button>`).join('')}</div><div class="result-head"><span class="subtle">${filtered.length} of ${available.length} sets</span><button class="small-button" data-tab="plan">My plan · ${settings.selected.size}</button></div>${state.mode==='grid'&&!state.search?renderGrid(filtered):`<div class="set-list">${filtered.map(s=>`<article class="set-card ${settings.selected.has(s.id)?'picked':''} ${isOn(s)?'active-now':''}" ${styleFor(s)}><div class="set-time"><b>${fmt(s.start).replace(' ','\u00a0')}</b><small>${fmt(s.end)}</small></div><div class="set-info"><h3>${esc(s.artist)}</h3><div><span class="stage-label">${esc(STAGES[s.stage].label)}</span>${settings.selected.has(s.id)&&overlaps(s,conflicts).length?'<span class="set-flag">Overlap</span>':''}</div></div><button class="add-set ${settings.selected.has(s.id)?'selected':''}" data-pick="${s.id}" aria-label="${settings.selected.has(s.id)?'Remove':'Add'} ${esc(s.artist)} ${settings.selected.has(s.id)?'from':'to'} your plan" aria-pressed="${settings.selected.has(s.id)}">${settings.selected.has(s.id)?'✓':'+'}</button></article>`).join('')||`<div class="empty">No matching sets. Try a different artist or stage.</div>`}</div>`}<div class="info-box">Based on <a href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer">EDC Orlando’s published set times</a>, checked November 5, 2026. Times can change during the festival.</div>`}
+  function renderGrid(list){const start=13*60,end=24*60,row=64,wide=850;const lane=158;const f=minute=>(minute-start)*row/60;const filteredStages=stageEntries.filter(([key])=>state.stage==='All'||state.stage===key);const w=57+filteredStages.length*lane;return `<div class="grid-scroll" aria-label="Horizontal schedule grid"><div class="grid-head" style="width:${w}px"><div class="hour-spacer"></div>${filteredStages.map(([key,v])=>`<div class="grid-heading" ${styleFor({stage:key})}>${esc(v.short)}</div>`).join('')}</div><div class="grid-chart" style="width:${w}px;height:${f(end)}px">${Array.from({length:12},(_,i)=>`<div class="grid-hour" style="top:${i*row}px">${fmt(13*60+i*60)}</div>`).join('')}${filteredStages.map(([key],index)=>`<div class="grid-lane" style="left:${57+index*lane}px"></div>`).join('')}${list.map(s=>{const idx=filteredStages.findIndex(([key])=>key===s.stage);if(idx<0)return '';const h=Math.max(12,f(s.end)-f(s.start)-2);return `<button class="grid-set ${settings.selected.has(s.id)?'picked':''}" data-pick="${s.id}" title="${esc(s.artist)} · ${esc(timeRange(s))}" style="--stage:${STAGES[s.stage].color};top:${f(s.start)+1}px;left:${57+idx*lane+4}px;width:${lane-8}px;height:${h}px"><strong>${esc(s.artist)}</strong><small>${esc(fmt(s.start))} – ${esc(fmt(s.end))} ${settings.selected.has(s.id)?'✓':'+'}</small></button>`}).join('')}</div></div><div class="grid-foot">Swipe sideways to see stages. Tap a set to add or remove it.</div>`}
+  function renderPlan(){const current=dayPicked(),all=picked(),overlapPairs=all.flatMap((s,i)=>all.slice(i+1).filter(t=>s.day===t.day&&s.start<t.end&&t.start<s.end).map(t=>[s,t]));const friend=state.friend;let display=state.planMode==='friend'&&friend?friend.ids.map(id=>SETS[id]).filter(s=>s&&s.day===state.day).sort(sortSets):current;return `${sectionTitle('My festival plan','Auto-saved on this device')}<div class="plan-heading"><div class="statbox"><b>${all.length}</b><span>Sets across all days</span></div><div class="statbox"><b>${overlapPairs.length}</b><span>Scheduling overlaps</span></div>${friend?`<div class="statbox"><b>${all.filter(s=>friend.ids.includes(s.id)).length}</b><span>Shared with ${esc(friend.name)}</span></div>`:''}</div><div class="actions" style="margin:14px 0"><button class="small-button primary" data-action="share">Share schedule</button><button class="small-button" data-action="calendar">Calendar reminders</button></div>${friend?`<div class="info-box"><strong>${esc(friend.name)} shared ${friend.ids.length} sets${friend.meet?' and a meeting pin':''}.</strong><div class="actions" style="margin-top:10px"><button class="small-button ${state.planMode==='mine'?'primary':''}" data-plan-mode="mine">My picks</button><button class="small-button ${state.planMode==='friend'?'primary':''}" data-plan-mode="friend">${esc(friend.name)}’s picks</button><button class="small-button" data-action="copy-friend">Add their picks</button><button class="small-button" data-action="clear-friend">Hide friend</button></div></div>`:''}${dayControls()}${sectionTitle(state.planMode==='friend'&&friend?`${esc(friend.name)}’s ${DAYS[state.day]} plan`:`${DAYS[state.day]} schedule`,`${display.length} set${display.length===1?'':'s'}`)}${display.length?display.map(s=>{const clashes=overlaps(s,state.planMode==='friend'&&friend?display:all);const tight=tightTransition(s,state.planMode==='friend'&&friend?display:all);return `<article class="plan-item" ${styleFor(s)}><div class="plan-main"><div class="plan-time">${esc(fmt(s.start))}<div class="subtle">${esc(fmt(s.end))}</div></div><div class="plan-main-info"><strong>${esc(s.artist)}</strong><span>${esc(STAGES[s.stage].label)}</span></div><button class="add-set ${settings.selected.has(s.id)?'selected':''}" data-pick="${s.id}" aria-label="${settings.selected.has(s.id)?'Remove from':'Add to'} your plan">${settings.selected.has(s.id)?'✓':'+'}</button></div><div class="plan-notes">${clashes.length?`<span class="microtag clash">Overlaps ${esc(clashes.map(t=>t.artist).join(', '))}</span>`:''}${tight?'<span class="microtag tight">Tight stage change ≤15 min</span>':''}${friend&&state.planMode!=='friend'&&friend.ids.includes(s.id)?`<span class="microtag friend">Also picked by ${esc(friend.name)}</span>`:''}${isOn(s)?'<span class="microtag">Playing now</span>':''}</div></article>`}).join(''):`<div class="empty"><div class="empty-icon">✧</div><h3>No sets selected for ${DAYS[state.day]}</h3><p>Browse the lineup and tap + to build a plan. Picks are saved automatically.</p><button class="small-button primary" data-tab="lineup">Browse artists</button></div>`}<div class="info-box">Overlap warnings compare actual set times. A stage-change warning appears when you have 15 minutes or less between different stages; it does not estimate walking or crowd delays.</div>`}
+  function renderMap(){const m=settings.meet;const f=state.friend?.meet;const markers=stageEntries.map(([key,v])=>({key,label:v.label,color:v.color,x:({Kinetic:63,Circuit:19,Neon:88,Stereo:22,Bacardi:44})[key],y:({Kinetic:55,Circuit:38.5,Neon:43,Stereo:58.7,Bacardi:71.2})[key]}));return `${sectionTitle('Festival map','Official 2026 image')}<div class="map-frame"><div class="map-controls"><button class="small-button" data-action="zoom-out">− Zoom</button><button class="small-button" data-action="zoom-in">+ Zoom</button><button class="small-button ${state.drop?'pink':''}" data-action="drop">${state.drop?'Tap map to pin':'Set meeting pin'}</button>${m?'<button class="small-button" data-action="clear-pin">Clear pin</button>':''}</div><div class="map-viewport" id="map-viewport"><div class="map-canvas ${state.drop?'dropping':''}" id="map-canvas" style="width:${state.mapZoom*100}%"><img src="${MAP_URL}" class="map-image" alt="EDC Orlando 2026 official festival map showing stages, entrance, bathrooms, first aid, water, food and other services." draggable="false" loading="eager">${m?`<div class="pin" style="left:${m.x}%;top:${m.y}%"><span class="pin-pill">Our meetup</span></div>`:''}${f?`<div class="pin friend" style="left:${f.x}%;top:${f.y}%"><span class="pin-pill">${esc(state.friend.name)}’s pin</span></div>`:''}</div></div><div class="map-credit">Official festival map © Insomniac. Pin locations are visual markers on the poster, not GPS coordinates or directions. Map requires internet until cached by your browser. <a href="https://orlando.edc.com/guide/map/" target="_blank" rel="noopener noreferrer">View official map</a>.</div></div>${sectionTitle('Find a stage','Approximate areas')}<div class="stage-grid">${markers.map(t=>`<button class="stage-link" style="--stage:${t.color}" data-spot="${t.key}">${esc(t.label)}<small>Locate on map</small></button>`).join('')}</div><div class="info-box">Meeting pins can be included when you share your plan. Arrange a recognizable physical landmark with friends; mobile service and GPS may be unreliable in dense crowds.</div>`}
+  function initMap(){const img=$('.map-image');if(img){img.addEventListener('error',()=>{const p=$('#map-viewport');if(p){p.innerHTML=`<div class="empty">Map image could not load. <a href="https://orlando.edc.com/guide/map/" target="_blank" rel="noopener noreferrer">Open EDC's official map</a>.</div>`}})}}
+  function renderTools(){return `${sectionTitle('Share & alerts','Your EDC toolkit')}<div class="tool-card"><h3>Share schedules with friends</h3><p>Send a link containing your picks and optional meetup pin. Friends can compare plans and add your picks to theirs. No account required.</p><label class="select-row">Your display name <input id="display-name" type="text" maxlength="28" value="${esc(settings.friendName)}" aria-label="Your display name" style="width:min(61%,220px);background:#1c263c;border:1px solid #40506d;border-radius:8px;color:white;padding:9px"></label><div class="actions"><button class="small-button primary" data-action="share">Share my plan</button><button class="small-button" data-action="copy-link">Copy plan link</button><button class="small-button" data-action="copy-text">Copy text schedule</button></div></div><div class="tool-card"><h3>Calendar reminders</h3><p>Download a calendar file for your selected sets, with a reminder before each one. On iPhone, importing into Apple Calendar provides far more dependable alerts than an offline-only PWA.</p><label class="select-row">Remind me before each set <select id="lead">${[5,10,15,20,30,60].map(n=>`<option value="${n}" ${settings.lead===n?'selected':''}>${n} minutes</option>`).join('')}</select></label><div class="actions"><button class="small-button primary" data-action="calendar">Export ${settings.selected.size} calendar events (.ics)</button></div><div class="info-box">In-app reminders only work while this page is open. Reliable background push notifications need a server, a Home Screen installation, and permission, so this version does <strong>not</strong> claim to offer them.</div></div><div class="tool-card"><h3>Back up your picks</h3><p>Local storage works without logging in, but clearing browser data can erase it. Export a backup to move plans between devices or browsers.</p><div class="actions"><button class="small-button" data-action="backup">Export JSON</button><button class="small-button" data-action="import">Import JSON</button><button class="small-button pink" data-action="reset">Clear my picks</button></div></div><div class="tool-card"><h3>Official sources & festival info</h3><p>Set times were captured November 5, 2026; the festival may adjust the schedule without updating this copy. Confirm changes in the official channels.</p><div class="source-links"><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/lineup/set-times/">Official set times</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/map/">Festival map</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/faq/">Festival FAQ</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/health-wellness/">Health & safety</a></div></div><div class="footnote">Version 1 · ${SETS.length} scheduled performances · ${FESTIVAL_DAYS.length} festival days. This project is not an official EDC app, ticket, credential, or emergency alert service.</div>`}
+  function eventDate(day, minute){const localDay=6+day+Math.floor(minute/1440);const m=minute%1440;return new Date(Date.UTC(2026,10,localDay,Math.floor(m/60)+5,m%60))}
+  function stamp(date){return date.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}
+  function icalEscape(str){return String(str).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
+  function exportIcs(){const sets=picked();if(!sets.length){toast('Add sets to your plan first.');return}const now=stamp(new Date());const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//EDC Pocket//Orlando 2026//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:EDC Orlando 2026 – My Sets'];for(const s of sets){lines.push('BEGIN:VEVENT',`UID:edcpocket-2026-${s.id}@edcpocket.local`,`DTSTAMP:${now}`,`DTSTART:${stamp(eventDate(s.day,s.start))}`,`DTEND:${stamp(eventDate(s.day,s.end))}`,`SUMMARY:${icalEscape(s.artist)} – EDC Orlando`,`LOCATION:${icalEscape(STAGES[s.stage].label+'; Tinker Field, Orlando, FL')}`,`DESCRIPTION:${icalEscape('Unofficial planning reminder. Verify current set times at '+SOURCE_URL)}`,'BEGIN:VALARM',`TRIGGER:-PT${settings.lead}M`,'ACTION:DISPLAY',`DESCRIPTION:${icalEscape(s.artist+' starts soon')}`,'END:VALARM','END:VEVENT')}lines.push('END:VCALENDAR');const out=lines.map(line=>{let result='';let first=true;while(line.length){result+=(first?'':'\r\n ')+line.slice(0,70);line=line.slice(70);first=false}return result}).join('\r\n')+'\r\n';download(new Blob([out],{type:'text/calendar;charset=utf-8'}),'edc-orlando-my-sets.ics');toast(`${sets.length} calendar events exported. Open the file to import reminders.`)}
+  function download(blob,name){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=name;document.body.appendChild(link);link.click();setTimeout(()=>{URL.revokeObjectURL(link.href);link.remove()},2000)}
+  function encodeLink(){const payload={v:1,n:settings.friendName||'Friend',ids:[...settings.selected],meet:settings.meet};const bytes=new TextEncoder().encode(JSON.stringify(payload));let str='';bytes.forEach(b=>str+=String.fromCharCode(b));return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+  function link(){return location.href.split('#')[0]+'#p='+encodeLink()}
+  function decodeShared(){const match=location.hash.match(/^#p=([A-Za-z0-9_-]+)$/);if(!match)return;try{const bin=atob(match[1].replace(/-/g,'+').replace(/_/g,'/'));const obj=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))));if(obj.v!==1||!Array.isArray(obj.ids))throw Error('Invalid');const ids=[...new Set(obj.ids.filter(id=>Number.isInteger(id)&&id>=0&&id<SETS.length))];const meet=(obj.meet&&Number.isFinite(obj.meet.x)&&Number.isFinite(obj.meet.y)&&obj.meet.x>=0&&obj.meet.x<=100&&obj.meet.y>=0&&obj.meet.y<=100)?{x:obj.meet.x,y:obj.meet.y}:null;state.friend={name:String(obj.n||'Friend').slice(0,28),ids,meet};state.tab='plan';state.planMode='friend';history.replaceState(null,'',location.pathname+location.search)}catch{toast('This shared schedule link could not be read.')}}
+  async function copy(textValue,success){try{await navigator.clipboard.writeText(textValue);toast(success||'Copied to clipboard.')}catch{const input=document.createElement('textarea');input.value=textValue;document.body.append(input);input.select();try{document.execCommand('copy');toast(success||'Copied to clipboard.')}catch{toast('Could not copy automatically. Try Share instead.')}input.remove()}}
+  function textPlan(){const all=picked();return `EDC Orlando 2026 – ${settings.friendName}\n`+DAYS.map((d,i)=>{const sets=all.filter(s=>s.day===i);return `${d} Nov ${i+6}\n${sets.length?sets.map(s=>`• ${timeRange(s)} | ${s.artist} — ${STAGES[s.stage].label}`).join('\n'):'(No sets chosen)'}`}).join('\n\n')+'\n\nUnofficial times, verify at '+SOURCE_URL}
+  async function share(){const content=textPlan();const url=link();const hosted=/^https?:$/.test(location.protocol);if(navigator.share){try{await navigator.share({title:'EDC Orlando 2026 – My Schedule',text:hosted?'My EDC set schedule':content,...hosted?{url}:{}});return}catch(e){if(e.name==='AbortError')return}}await copy(hosted?url:content,hosted?'Schedule link copied.':'Text schedule copied. Publish the site to share live links.');}
+  function backup(){const obj={app:'EDC Pocket',version:1,year:2026,selected:[...settings.selected],friendName:settings.friendName,lead:settings.lead,meet:settings.meet};download(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),'edc-pocket-backup.json');toast('Your picks have been backed up.');}
+  function checkUpcoming(){const chosen=picked();for(const s of chosen){const remain=minutesUntil(s);if(remain>0&&remain<=settings.lead&& !alerted.has(s.id)){alerted.add(s.id);toast(`${s.artist} starts at ${fmt(s.start)} — ${STAGES[s.stage].label}`)}}}
+  const alerted=new Set();
+  view.addEventListener('input',e=>{if(e.target.id==='set-search'){const pos=e.target.selectionStart;state.search=e.target.value;view.innerHTML=renderLineup();const input=$('#set-search');if(input){input.focus();try{input.setSelectionRange(pos,pos)}catch{}}} else if(e.target.id==='display-name'){settings.friendName=e.target.value.slice(0,28);persist()}});
+  view.addEventListener('change',e=>{if(e.target.id==='lead'){settings.lead=Number(e.target.value);persist();toast(`Calendar reminders set for ${settings.lead} minutes before.`)}});
+  view.addEventListener('click',async e=>{const btn=e.target.closest('button');if(!btn){if(state.tab==='map'&&state.drop){const canvas=e.target.closest('#map-canvas');if(canvas){const r=canvas.getBoundingClientRect();settings.meet={x:Math.max(0,Math.min(100,+((e.clientX-r.left)*100/r.width).toFixed(2))),y:Math.max(0,Math.min(100,+((e.clientY-r.top)*100/r.height).toFixed(2)))};state.drop=false;persist();render();toast('Meeting pin saved and included in shared links.')}}return}if(btn.dataset.tab){show(btn.dataset.tab);return}if(btn.dataset.day!==undefined){state.day=Number(btn.dataset.day);render();return}if(btn.dataset.mode){state.mode=btn.dataset.mode;render();return}if(btn.dataset.stage){state.stage=btn.dataset.stage;render();return}if(btn.dataset.planMode){state.planMode=btn.dataset.planMode;render();return}if(btn.dataset.pick!==undefined){const id=Number(btn.dataset.pick);settings.selected.has(id)?settings.selected.delete(id):settings.selected.add(id);persist();render();return}if(btn.dataset.spot){const coords={Kinetic:[63,55],Circuit:[19,38.5],Neon:[88,43],Stereo:[22,58.7],Bacardi:[44,71.2]}[btn.dataset.spot];state.mapZoom=Math.max(1.6,state.mapZoom);render();requestAnimationFrame(()=>{const map=$('#map-viewport');const canvas=$('#map-canvas');if(map&&canvas){map.scrollLeft=Math.max(0,canvas.clientWidth*coords[0]/100-map.clientWidth/2);map.scrollTop=Math.max(0,canvas.clientHeight*coords[1]/100-map.clientHeight/2)}});return}const a=btn.dataset.action;if(!a)return;switch(a){case 'share':await share();break;case 'copy-link':await copy(link(),location.protocol==='file:'?'Link copied, but local file links do not work for friends. Deploy the website first.':'Shareable link copied.');break;case 'copy-text':await copy(textPlan(),'Text schedule copied.');break;case 'calendar':exportIcs();break;case 'backup':backup();break;case 'import':$('#import-file').click();break;case 'reset':if(confirm('Clear all saved set selections on this device?')){settings.selected.clear();persist();render();toast('Saved picks cleared.')}break;case 'drop':state.drop=!state.drop;render();if(state.drop)toast('Tap the poster at the spot where you want to meet.');break;case 'clear-pin':settings.meet=null;persist();render();break;case 'zoom-in':state.mapZoom=Math.min(3.5,+(state.mapZoom+.4).toFixed(1));render();break;case 'zoom-out':state.mapZoom=Math.max(1,+(state.mapZoom-.4).toFixed(1));render();break;case 'copy-friend':if(state.friend){state.friend.ids.forEach(id=>settings.selected.add(id));persist();state.planMode='mine';render();toast('Added their picks to your schedule.')}break;case 'clear-friend':state.friend=null;state.planMode='mine';render();break;}});
+  $('#import-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const obj=JSON.parse(await file.text());if(obj.app!=='EDC Pocket'||!Array.isArray(obj.selected))throw Error('File is not an EDC Pocket backup');if(!confirm('Replace your current saved picks with this backup?'))return;settings.selected=new Set(obj.selected.filter(id=>Number.isInteger(id)&&id>=0&&id<SETS.length));settings.friendName=String(obj.friendName||'My schedule').slice(0,28);settings.lead=[5,10,15,20,30,60].includes(obj.lead)?obj.lead:15;settings.meet=obj.meet&&Number.isFinite(obj.meet.x)&&Number.isFinite(obj.meet.y)?obj.meet:null;persist();render();toast('Backup imported.')}catch(ex){toast(ex.message||'Could not import this backup.')}e.target.value=''});
+  window.addEventListener('hashchange',()=>{decodeShared();render()});
+  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+  decodeShared();render();checkUpcoming();setInterval(()=>{if(document.visibilityState!=='hidden')checkUpcoming()},30000);
+  if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+})();
+
+  </script>
+</body>
+</html>
