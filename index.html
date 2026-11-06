@@ -240,7 +240,7 @@ const SETS = RAW_SETS.trim().split('\n').map((line,id)=> {
     try{localStorage.setItem(KEY,JSON.stringify(snapshot()))}catch{}
     render();
   }
-  window.EDCPocketBridge={read:snapshot,applyCloud,render,toast,show};
+  window.EDCPocketBridge={read:snapshot,applyCloud,render,toast,show,setCount:SETS.length};
   function syncBanner(){
     const el=document.getElementById('account-banner');if(!el)return;
     const s=window.EDCPocketCloud||{state:'guest'};
