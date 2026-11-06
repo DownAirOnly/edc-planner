@@ -25,7 +25,7 @@ self.addEventListener('fetch',event=>{
  // Fetch fresh pages when online so updates and safety notices aren't stuck behind an old cache.
  if(event.request.mode==='navigate'||url.pathname.endsWith('/index.html')){
    event.respondWith(fetch(event.request).then(response=>{
-     if(response.ok)caches.open(STATIC).then(c=>c.put('./index.html',response.clone()));
+     if(response.ok){const copy=response.clone();caches.open(STATIC).then(c=>c.put('./index.html',copy));}
      return response;
    }).catch(()=>caches.match('./index.html')));
    return;
