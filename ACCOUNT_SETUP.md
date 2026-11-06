@@ -3,7 +3,7 @@
 The live app currently runs without accounts. This development branch prepares the first account release; do not enable it until the following steps are completed.
 
 1. Create a **new, separate Firebase project**, not Everyday's or Botanica's.
-2. Register a **Web app** named `EDC Pocket` (do not enable Firebase Hosting; GitHub Pages remains the host). Copy the public `firebaseConfig` object from Project settings → Your apps. The development branch currently has `window.EDC_FIREBASE_CONFIG = null;` near the bottom of `index.html`; replace `null` with that object before testing. Never paste a service-account key.
+2. **Completed 2026-11-06:** Registered Firebase Web app configuration for project `edc-planner-6410a` in the development branch (`window.EDC_FIREBASE_CONFIG` in `index.html`). Public config is not a service-account key. No Analytics initialization is necessary for authentication.
 3. In Firebase Authentication → Sign-in method, enable **Google** and select the requested project support email. In Authentication → Settings → Authorized domains, add `downaironly.github.io` (the hostname only, not `https://` or `/edc-planner`).
 4. Create a Cloud Firestore database and publish the contents of `firestore.rules` as the database security rules. Start with these deny-by-default rules, not test mode.
 5. Open the staging/preview build and test on iOS Safari **and** the installed Home Screen PWA. Pop-up authentication can be blocked on some mobile environments; GitHub Pages also has limitations for Firebase redirect sign-in. Do not ship until the relevant flow is working.
