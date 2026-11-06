@@ -475,14 +475,18 @@ if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.app
       }).then(async()=>{
         pending=Math.max(0,pending-1);
         if (pending===0 && activeUser?.uid===uid) {
-          syncError=false;
+          const beforeRead=copyOf(safeSnapshot());
           const server=await F.getDocFromServer(activeRef);
-          if (server.exists()) {
+          // Another edit may have been made while the server request was in
+          // flight. Its own pending write will reconcile that selection.
+          if (pending===0 && activeUser?.uid===uid &&
+              snapEqual(clean(beforeRead),clean(safeSnapshot())) && server.exists()) {
             lastLocal=copyOf(server.data());
             acknowledge(uid,server.data());
             bridge.applyCloud(server.data());
+            syncError=false;
+            announce('signed-in','Saved to cloud');
           }
-          announce('signed-in','Saved to cloud');
         }
       }).catch(()=>{
         pending=Math.max(0,pending-1);
