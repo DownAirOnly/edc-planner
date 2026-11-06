@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-title" content="EDC Pocket">
   <meta name="description" content="Unofficial EDC Orlando 2026 lineup, personal set planner, sharing, festival map, and calendar reminders.">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <title>EDC Pocket · Orlando 2026</title>
   <style>
     :root{color-scheme:dark;--bg:#080b17;--panel:#111625;--panel2:#191f32;--line:#28304b;--text:#f6f6ff;--muted:#9da9c4;--pink:#ff60bd;--cyan:#5cddf3;--purple:#a596ff;--radius:19px;--safe:env(safe-area-inset-bottom,0px)}
@@ -29,8 +29,13 @@
     @media (min-width:640px){.shell{padding:25px 26px 120px}.set-list{grid-template-columns:repeat(2,minmax(0,1fr))}.set-card{min-height:88px}.stage-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{padding:31px}.map-viewport{max-height:700px}.header-pill{padding:9px 14px}.brand-name{font-size:23px}}
     @media(max-width:385px){.brand-name{font-size:18px}.header-pill{font-size:10px;padding:8px}.set-card{gap:8px;padding:12px 8px 12px 11px}.set-time{min-width:58px}.set-info h3{font-size:14px}.add-set{width:34px;height:34px}.day-button b{font-size:14px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-    .guest-alert{display:flex;align-items:center;flex-wrap:wrap;gap:9px;border:1px solid #7d583d;background:#382920;color:#ffe3be;padding:10px 12px;margin-bottom:13px;border-radius:12px;font-size:12px}
-    .guest-alert span{flex:1;min-width:160px}.guest-alert button{border:1px solid #c49569;background:transparent;color:inherit;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:750}
+    .account-banner{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:12px;border-radius:12px;font-size:12px;flex-wrap:wrap}
+    .account-banner.guest{background:#382923;border:1px solid #815c3f;color:#ffe2bb}
+    .account-banner.signed{background:#16332f;border:1px solid #306e62;color:#ddfff5}
+    .banner-title{font-weight:820}.banner-sub{flex:1;min-width:130px;color:inherit;opacity:.9}
+    .banner-button{border:1px solid currentColor;background:transparent;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:760;color:inherit}
+    .account-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0}.sync-label{font-size:12px;color:var(--cyan)}
+    .tool-card input#screen-name{background:#1c263c;color:#fff;border:1px solid #40506d;border-radius:9px;padding:9px;max-width:60%;min-width:0}.helper{font-size:12px;color:var(--muted);line-height:1.4}
   </style>
 </head>
 <body>
@@ -39,7 +44,7 @@
       <div class="brand"><div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><defs><linearGradient id="orb" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5ce6f6"/><stop offset="1" stop-color="#ff66c7"/></linearGradient></defs><circle cx="20" cy="20" r="15" fill="none" stroke="url(#orb)" stroke-width="2.8"/><path d="M9 24 18 9l3 15 10-7-9 14" fill="none" stroke="url(#orb)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg></div><div><div class="brand-overline">UNOFFICIAL FESTIVAL PLANNER</div><div class="brand-name">EDC <span style="color:var(--pink)">Pocket</span></div></div></div>
       <div class="header-links"><span class="header-pill"><span class="mini-dot"></span><strong>ORLANDO</strong> '26</span></div>
     </header>
-    <div class="guest-alert"><strong>Guest · Not backed up</strong><span>Your schedule is saved only on this device. Clearing browser data can erase it.</span><button id="guest-backup" type="button">Back up</button></div>
+    <div id="account-banner" class="account-banner guest" aria-live="polite"><span class="banner-title">Guest · Not backed up</span><span class="banner-sub">Your picks are stored only on this device.</span><button class="banner-button" data-account-settings>Sign in</button></div>
     <main id="view" aria-live="polite"></main>
     <footer class="footnote">EDC Pocket is an independent fan-made planner, not affiliated with or endorsed by Insomniac or EDC. Times are a November 5, 2026 snapshot and may change. Always verify with official channels.</footer>
   </div>
@@ -204,7 +209,7 @@ const SETS = RAW_SETS.trim().split('\n').map((line,id)=> {
   return {id, day:Number(day), stage, start:toMinute(start), end:toMinute(end), artist:nameParts.join('|')};
 });
 
-  </script>
+</script>
   <script>
 /* EDC Pocket – offline-friendly, zero-account festival planner. */
 (() => {
@@ -224,7 +229,33 @@ const SETS = RAW_SETS.trim().split('\n').map((line,id)=> {
   const stageEntries = Object.entries(STAGES);
   const picked = () => [...settings.selected].map(id=>SETS[id]).filter(Boolean).sort(sortSets);
   const dayPicked = () => picked().filter(s=>s.day===state.day);
-  function persist(){try{localStorage.setItem(KEY,JSON.stringify({...settings,selected:[...settings.selected] }));}catch{toast('Storage is unavailable; export a backup to save your picks.')}}
+  function snapshot(){return {selected:[...settings.selected],friendName:settings.friendName,lead:settings.lead,meet:settings.meet}}
+  function persist(){const next=snapshot();try{localStorage.setItem(KEY,JSON.stringify(next));}catch{toast('Storage is unavailable; export a backup to save your picks.')}window.dispatchEvent(new CustomEvent('edcpocket:change',{detail:next}));}
+  function applyCloud(cloud){
+    if(!cloud||!Array.isArray(cloud.selected))return;
+    settings.selected=new Set(cloud.selected.filter(id=>Number.isInteger(id)&&id>=0&&id<SETS.length));
+    if(typeof cloud.friendName==='string'&&cloud.friendName.trim())settings.friendName=cloud.friendName.slice(0,28);
+    if([5,10,15,20,30,60].includes(cloud.lead))settings.lead=cloud.lead;
+    if(cloud.meet===null||(cloud.meet&&Number.isFinite(cloud.meet.x)&&Number.isFinite(cloud.meet.y)))settings.meet=cloud.meet;
+    try{localStorage.setItem(KEY,JSON.stringify(snapshot()))}catch{}
+    render();
+  }
+  window.EDCPocketBridge={read:snapshot,applyCloud,render,toast,show,setCount:SETS.length};
+  function syncBanner(){
+    const el=document.getElementById('account-banner');if(!el)return;
+    const s=window.EDCPocketCloud||{state:'guest'};
+    if(s.state==='signed-in'||s.state==='saving'||s.state==='offline'){
+      el.className='account-banner signed';
+      const status=s.syncLabel||'Checking sync…';
+      el.innerHTML=`<span class="banner-title">${esc(s.screenName||'Signed in')}</span><span class="banner-sub">${esc(status)}</span><button class="banner-button" data-account-settings>Account</button>`;
+    }else{
+      el.className='account-banner guest';
+      el.innerHTML='<span class="banner-title">Guest · Not backed up</span><span class="banner-sub">Your picks are stored only on this device.</span><button class="banner-button" data-account-settings>Sign in</button>';
+    }
+  }
+  document.getElementById('account-banner')?.addEventListener('click',e=>{if(e.target.closest('[data-account-settings]'))show('tools')});
+  window.addEventListener('edcpocket:authstate',()=>{syncBanner();if(state.tab==='tools')render()});
+  syncBanner();
   function sortSets(a,b){return a.day-b.day||a.start-b.start||a.stage.localeCompare(b.stage)}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function fmt(min){const h=Math.floor(min/60);return `${h%12||12}:${String(min%60).padStart(2,'0')} ${h>=12&&h<24?'PM':'AM'}`}
@@ -240,12 +271,16 @@ const SETS = RAW_SETS.trim().split('\n').map((line,id)=> {
   function overlaps(s,list){return list.filter(other=>other.id!==s.id&&other.day===s.day&&other.start<s.end&&s.start<other.end)}
   function tightTransition(s,list){return list.some(other=>other.id!==s.id&&other.day===s.day&&other.stage!==s.stage&&((other.start>=s.end&&other.start-s.end<=15)||(s.start>=other.end&&s.start-other.end<=15)))}
   function sectionTitle(name,note){return `<div class="section-title"><h2>${name}</h2><span class="subtle">${note||''}</span></div>`}
-  function renderLineup(){const available=SETS.filter(s=>s.day===state.day);const filtered=available.filter(s=>(state.stage==='All'||s.stage===state.stage)&&(!state.search||s.artist.toLocaleLowerCase().includes(state.search.toLocaleLowerCase()))).sort(sortSets);const conflicts=picked();return `<section class="hero"><div class="hero-label">NOVEMBER 6–8 · TINKER FIELD</div><h1>Lineup &amp; set times</h1><div class="hero-metrics"><div class="metric"><b>${SETS.length}</b> sets</div><div class="metric"><b>5</b> stages</div><div class="metric"><b>${settings.selected.size}</b> saved</div></div></section>${sectionTitle('Explore the lineup','Orlando time · EST')}${dayControls()}<div class="toolbar"><label class="search-wrap"><span aria-hidden="true">⌕</span><input id="set-search" type="search" placeholder="Find an artist..." aria-label="Find an artist" value="${esc(state.search)}"></label><div class="seg" role="group" aria-label="Schedule view"><button class="${state.mode==='list'?'active':''}" data-mode="list" aria-pressed="${state.mode==='list'}">List</button><button class="${state.mode==='grid'?'active':''}" data-mode="grid" aria-pressed="${state.mode==='grid'}">Grid</button></div></div><div class="stage-filters" aria-label="Filter by stage"><button class="chip ${state.stage==='All'?'active':''}" data-stage="All">All stages</button>${stageEntries.map(([key,v])=>`<button class="chip ${state.stage===key?'active':''}" data-stage="${key}">${esc(v.label)}</button>`).join('')}</div><div class="result-head"><span class="subtle">${filtered.length} of ${available.length} sets</span><button class="small-button" data-tab="plan">My plan · ${settings.selected.size}</button></div>${state.mode==='grid'&&!state.search?renderGrid(filtered):`<div class="set-list">${filtered.map(s=>`<article class="set-card ${settings.selected.has(s.id)?'picked':''} ${isOn(s)?'active-now':''}" ${styleFor(s)}><div class="set-time"><b>${fmt(s.start).replace(' ','\u00a0')}</b><small>${fmt(s.end)}</small></div><div class="set-info"><h3>${esc(s.artist)}</h3><div><span class="stage-label">${esc(STAGES[s.stage].label)}</span>${settings.selected.has(s.id)&&overlaps(s,conflicts).length?'<span class="set-flag">Overlap</span>':''}</div></div><button class="add-set ${settings.selected.has(s.id)?'selected':''}" data-pick="${s.id}" aria-label="${settings.selected.has(s.id)?'Remove':'Add'} ${esc(s.artist)} ${settings.selected.has(s.id)?'from':'to'} your plan" aria-pressed="${settings.selected.has(s.id)}">${settings.selected.has(s.id)?'✓':'+'}</button></article>`).join('')||`<div class="empty">No matching sets. Try a different artist or stage.</div>`}</div>`}<div class="info-box">Based on <a href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer">EDC Orlando’s published set times</a>, checked November 5, 2026. Times can change during the festival.</div>`}
+  function renderLineup(){const available=SETS.filter(s=>s.day===state.day);const filtered=available.filter(s=>(state.stage==='All'||s.stage===state.stage)&&(!state.search||s.artist.toLocaleLowerCase().includes(state.search.toLocaleLowerCase()))).sort(sortSets);const conflicts=picked();return `<section class="hero"><div class="hero-label">NOVEMBER 6–8 · TINKER FIELD</div><h1>Lineup &amp; set times</h1><div class="hero-metrics"><div class="metric"><b>${SETS.length}</b> sets</div><div class="metric"><b>5</b> stages</div><div class="metric"><b>${settings.selected.size}</b> saved</div></div></section>${sectionTitle('Artists','Orlando time · EST')}${dayControls()}<div class="toolbar"><label class="search-wrap"><span aria-hidden="true">⌕</span><input id="set-search" type="search" placeholder="Find an artist..." aria-label="Find an artist" value="${esc(state.search)}"></label><div class="seg" role="group" aria-label="Schedule view"><button class="${state.mode==='list'?'active':''}" data-mode="list" aria-pressed="${state.mode==='list'}">List</button><button class="${state.mode==='grid'?'active':''}" data-mode="grid" aria-pressed="${state.mode==='grid'}">Grid</button></div></div><div class="stage-filters" aria-label="Filter by stage"><button class="chip ${state.stage==='All'?'active':''}" data-stage="All">All stages</button>${stageEntries.map(([key,v])=>`<button class="chip ${state.stage===key?'active':''}" data-stage="${key}">${esc(v.label)}</button>`).join('')}</div><div class="result-head"><span class="subtle">${filtered.length} of ${available.length} sets</span><button class="small-button" data-tab="plan">My plan · ${settings.selected.size}</button></div>${state.mode==='grid'&&!state.search?renderGrid(filtered):`<div class="set-list">${filtered.map(s=>`<article class="set-card ${settings.selected.has(s.id)?'picked':''} ${isOn(s)?'active-now':''}" ${styleFor(s)}><div class="set-time"><b>${fmt(s.start).replace(' ','\u00a0')}</b><small>${fmt(s.end)}</small></div><div class="set-info"><h3>${esc(s.artist)}</h3><div><span class="stage-label">${esc(STAGES[s.stage].label)}</span>${settings.selected.has(s.id)&&overlaps(s,conflicts).length?'<span class="set-flag">Overlap</span>':''}</div></div><button class="add-set ${settings.selected.has(s.id)?'selected':''}" data-pick="${s.id}" aria-label="${settings.selected.has(s.id)?'Remove':'Add'} ${esc(s.artist)} ${settings.selected.has(s.id)?'from':'to'} your plan" aria-pressed="${settings.selected.has(s.id)}">${settings.selected.has(s.id)?'✓':'+'}</button></article>`).join('')||`<div class="empty">No matching sets. Try a different artist or stage.</div>`}</div>`}<div class="info-box">Based on <a href="${SOURCE_URL}" target="_blank" rel="noopener noreferrer">EDC Orlando’s published set times</a>, checked November 5, 2026. Times can change during the festival.</div>`}
   function renderGrid(list){const start=13*60,end=24*60,row=64,wide=850;const lane=158;const f=minute=>(minute-start)*row/60;const filteredStages=stageEntries.filter(([key])=>state.stage==='All'||state.stage===key);const w=57+filteredStages.length*lane;return `<div class="grid-scroll" aria-label="Horizontal schedule grid"><div class="grid-head" style="width:${w}px"><div class="hour-spacer"></div>${filteredStages.map(([key,v])=>`<div class="grid-heading" ${styleFor({stage:key})}>${esc(v.short)}</div>`).join('')}</div><div class="grid-chart" style="width:${w}px;height:${f(end)}px">${Array.from({length:12},(_,i)=>`<div class="grid-hour" style="top:${i*row}px">${fmt(13*60+i*60)}</div>`).join('')}${filteredStages.map(([key],index)=>`<div class="grid-lane" style="left:${57+index*lane}px"></div>`).join('')}${list.map(s=>{const idx=filteredStages.findIndex(([key])=>key===s.stage);if(idx<0)return '';const h=Math.max(12,f(s.end)-f(s.start)-2);return `<button class="grid-set ${settings.selected.has(s.id)?'picked':''}" data-pick="${s.id}" title="${esc(s.artist)} · ${esc(timeRange(s))}" style="--stage:${STAGES[s.stage].color};top:${f(s.start)+1}px;left:${57+idx*lane+4}px;width:${lane-8}px;height:${h}px"><strong>${esc(s.artist)}</strong><small>${esc(fmt(s.start))} – ${esc(fmt(s.end))} ${settings.selected.has(s.id)?'✓':'+'}</small></button>`}).join('')}</div></div><div class="grid-foot">Swipe sideways to see stages. Tap a set to add or remove it.</div>`}
   function renderPlan(){const current=dayPicked(),all=picked(),overlapPairs=all.flatMap((s,i)=>all.slice(i+1).filter(t=>s.day===t.day&&s.start<t.end&&t.start<s.end).map(t=>[s,t]));const friend=state.friend;let display=state.planMode==='friend'&&friend?friend.ids.map(id=>SETS[id]).filter(s=>s&&s.day===state.day).sort(sortSets):current;return `${sectionTitle('My festival plan','Auto-saved on this device')}<div class="plan-heading"><div class="statbox"><b>${all.length}</b><span>Sets across all days</span></div><div class="statbox"><b>${overlapPairs.length}</b><span>Scheduling overlaps</span></div>${friend?`<div class="statbox"><b>${all.filter(s=>friend.ids.includes(s.id)).length}</b><span>Shared with ${esc(friend.name)}</span></div>`:''}</div><div class="actions" style="margin:14px 0"><button class="small-button primary" data-action="share">Share schedule</button><button class="small-button" data-action="calendar">Calendar reminders</button></div>${friend?`<div class="info-box"><strong>${esc(friend.name)} shared ${friend.ids.length} sets${friend.meet?' and a meeting pin':''}.</strong><div class="actions" style="margin-top:10px"><button class="small-button ${state.planMode==='mine'?'primary':''}" data-plan-mode="mine">My picks</button><button class="small-button ${state.planMode==='friend'?'primary':''}" data-plan-mode="friend">${esc(friend.name)}’s picks</button><button class="small-button" data-action="copy-friend">Add their picks</button><button class="small-button" data-action="clear-friend">Hide friend</button></div></div>`:''}${dayControls()}${sectionTitle(state.planMode==='friend'&&friend?`${esc(friend.name)}’s ${DAYS[state.day]} plan`:`${DAYS[state.day]} schedule`,`${display.length} set${display.length===1?'':'s'}`)}${display.length?display.map(s=>{const clashes=overlaps(s,state.planMode==='friend'&&friend?display:all);const tight=tightTransition(s,state.planMode==='friend'&&friend?display:all);return `<article class="plan-item" ${styleFor(s)}><div class="plan-main"><div class="plan-time">${esc(fmt(s.start))}<div class="subtle">${esc(fmt(s.end))}</div></div><div class="plan-main-info"><strong>${esc(s.artist)}</strong><span>${esc(STAGES[s.stage].label)}</span></div><button class="add-set ${settings.selected.has(s.id)?'selected':''}" data-pick="${s.id}" aria-label="${settings.selected.has(s.id)?'Remove from':'Add to'} your plan">${settings.selected.has(s.id)?'✓':'+'}</button></div><div class="plan-notes">${clashes.length?`<span class="microtag clash">Overlaps ${esc(clashes.map(t=>t.artist).join(', '))}</span>`:''}${tight?'<span class="microtag tight">Tight stage change ≤15 min</span>':''}${friend&&state.planMode!=='friend'&&friend.ids.includes(s.id)?`<span class="microtag friend">Also picked by ${esc(friend.name)}</span>`:''}${isOn(s)?'<span class="microtag">Playing now</span>':''}</div></article>`}).join(''):`<div class="empty"><div class="empty-icon">✧</div><h3>No sets selected for ${DAYS[state.day]}</h3><p>Browse the lineup and tap + to build a plan. Picks are saved automatically.</p><button class="small-button primary" data-tab="lineup">Browse artists</button></div>`}<div class="info-box">Overlap warnings compare actual set times. A stage-change warning appears when you have 15 minutes or less between different stages; it does not estimate walking or crowd delays.</div>`}
   function renderMap(){const m=settings.meet;const f=state.friend?.meet;const markers=stageEntries.map(([key,v])=>({key,label:v.label,color:v.color,x:({Kinetic:63,Circuit:19,Neon:88,Stereo:22,Bacardi:44})[key],y:({Kinetic:55,Circuit:38.5,Neon:43,Stereo:58.7,Bacardi:71.2})[key]}));return `${sectionTitle('Festival map','Official 2026 image')}<div class="map-frame"><div class="map-controls"><button class="small-button" data-action="zoom-out">− Zoom</button><button class="small-button" data-action="zoom-in">+ Zoom</button><button class="small-button ${state.drop?'pink':''}" data-action="drop">${state.drop?'Tap map to pin':'Set meeting pin'}</button>${m?'<button class="small-button" data-action="clear-pin">Clear pin</button>':''}</div><div class="map-viewport" id="map-viewport"><div class="map-canvas ${state.drop?'dropping':''}" id="map-canvas" style="width:${state.mapZoom*100}%"><img src="${MAP_URL}" class="map-image" alt="EDC Orlando 2026 official festival map showing stages, entrance, bathrooms, first aid, water, food and other services." draggable="false" loading="eager">${m?`<div class="pin" style="left:${m.x}%;top:${m.y}%"><span class="pin-pill">Our meetup</span></div>`:''}${f?`<div class="pin friend" style="left:${f.x}%;top:${f.y}%"><span class="pin-pill">${esc(state.friend.name)}’s pin</span></div>`:''}</div></div><div class="map-credit">Official festival map © Insomniac. Pin locations are visual markers on the poster, not GPS coordinates or directions. Map requires internet until cached by your browser. <a href="https://orlando.edc.com/guide/map/" target="_blank" rel="noopener noreferrer">View official map</a>.</div></div>${sectionTitle('Find a stage','Approximate areas')}<div class="stage-grid">${markers.map(t=>`<button class="stage-link" style="--stage:${t.color}" data-spot="${t.key}">${esc(t.label)}<small>Locate on map</small></button>`).join('')}</div><div class="info-box">Meeting pins can be included when you share your plan. Arrange a recognizable physical landmark with friends; mobile service and GPS may be unreliable in dense crowds.</div>`}
   function initMap(){const img=$('.map-image');if(img){img.addEventListener('error',()=>{const p=$('#map-viewport');if(p){p.innerHTML=`<div class="empty">Map image could not load. <a href="https://orlando.edc.com/guide/map/" target="_blank" rel="noopener noreferrer">Open EDC's official map</a>.</div>`}})}}
-  function renderTools(){return `${sectionTitle('Tools','')}<div class="tool-card"><h3>Share schedules with friends</h3><p>Send a link containing your picks and optional meetup pin. Friends can compare plans and add your picks to theirs. No account required.</p><label class="select-row">Your display name <input id="display-name" type="text" maxlength="28" value="${esc(settings.friendName)}" aria-label="Your display name" style="width:min(61%,220px);background:#1c263c;border:1px solid #40506d;border-radius:8px;color:white;padding:9px"></label><div class="actions"><button class="small-button primary" data-action="share">Share my plan</button><button class="small-button" data-action="copy-link">Copy plan link</button><button class="small-button" data-action="copy-text">Copy text schedule</button></div></div><div class="tool-card"><h3>Calendar reminders</h3><p>Download a calendar file for your selected sets, with a reminder before each one. On iPhone, importing into Apple Calendar provides far more dependable alerts than an offline-only PWA.</p><label class="select-row">Remind me before each set <select id="lead">${[5,10,15,20,30,60].map(n=>`<option value="${n}" ${settings.lead===n?'selected':''}>${n} minutes</option>`).join('')}</select></label><div class="actions"><button class="small-button primary" data-action="calendar">Export ${settings.selected.size} calendar events (.ics)</button></div><div class="info-box">In-app reminders only work while this page is open. Reliable background push notifications need a server, a Home Screen installation, and permission, so this version does <strong>not</strong> claim to offer them.</div></div><div class="tool-card"><h3>Back up your picks</h3><p>Local storage works without logging in, but clearing browser data can erase it. Export a backup to move plans between devices or browsers.</p><div class="actions"><button class="small-button" data-action="backup">Export JSON</button><button class="small-button" data-action="import">Import JSON</button><button class="small-button pink" data-action="reset">Clear my picks</button></div></div><div class="tool-card"><h3>Official sources & festival info</h3><p>Set times were captured November 5, 2026; the festival may adjust the schedule without updating this copy. Confirm changes in the official channels.</p><div class="source-links"><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/lineup/set-times/">Official set times</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/map/">Festival map</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/faq/">Festival FAQ</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/health-wellness/">Health & safety</a></div></div><div class="footnote">Version 1 · ${SETS.length} scheduled performances · ${FESTIVAL_DAYS.length} festival days. This project is not an official EDC app, ticket, credential, or emergency alert service.</div>`}
+  function accountCard(){const s=window.EDCPocketCloud||{state:'guest'};
+    if(s.state==='signed-in'||s.state==='saving'||s.state==='offline')return `<div class="tool-card"><h3>Account</h3><div class="account-row"><span>${esc(s.screenName||'Signed in')}</span><span class="sync-label">${esc(s.syncLabel||'Checking sync…')}</span></div><label class="select-row">Screen name <input id="screen-name" type="text" maxlength="28" value="${esc(s.screenName||'')}" placeholder="Choose a public name" aria-label="Screen name"></label><p class="helper">Use a screen name, not your real name. Your email is never displayed publicly.</p><div class="actions"><button class="small-button primary" data-action="save-screen-name">Save name</button>${c.state==='offline'?'<button class="small-button" data-action="retry-sync">Retry sync</button>':''}<button class="small-button" data-action="sign-out">Sign out</button></div></div>`;
+    return `<div class="tool-card"><h3>Guest — not backed up</h3><p>Your schedule is saved on this device only. Clearing browser data or reinstalling may erase it. Sign in to protect your picks and unlock Friends later.</p><button class="small-button primary" data-action="sign-in">Continue with Google</button>${s.state==='unavailable'?'<p class="helper">Google sign-in is being configured. Your local picks are unchanged.</p>':''}</div>`;
+  }
+  function renderTools(){return `${sectionTitle('Settings','')}${accountCard()}<div class="tool-card"><h3>Share schedules with friends</h3><p>Send a link containing your picks and optional meetup pin. Friends can compare plans and add your picks to theirs. No account required.</p><label class="select-row">Your display name <input id="display-name" type="text" maxlength="28" value="${esc(settings.friendName)}" aria-label="Your display name" style="width:min(61%,220px);background:#1c263c;border:1px solid #40506d;border-radius:8px;color:white;padding:9px"></label><div class="actions"><button class="small-button primary" data-action="share">Share my plan</button><button class="small-button" data-action="copy-link">Copy plan link</button><button class="small-button" data-action="copy-text">Copy text schedule</button></div></div><div class="tool-card"><h3>Calendar reminders</h3><p>Download a calendar file for your selected sets, with a reminder before each one. On iPhone, importing into Apple Calendar provides far more dependable alerts than an offline-only PWA.</p><label class="select-row">Remind me before each set <select id="lead">${[5,10,15,20,30,60].map(n=>`<option value="${n}" ${settings.lead===n?'selected':''}>${n} minutes</option>`).join('')}</select></label><div class="actions"><button class="small-button primary" data-action="calendar">Export ${settings.selected.size} calendar events (.ics)</button></div><div class="info-box">In-app reminders only work while this page is open. Reliable background push notifications need a server, a Home Screen installation, and permission, so this version does <strong>not</strong> claim to offer them.</div></div><div class="tool-card"><h3>Back up your picks</h3><p>Local storage works without logging in, but clearing browser data can erase it. Export a backup to move plans between devices or browsers.</p><div class="actions"><button class="small-button" data-action="backup">Export JSON</button><button class="small-button" data-action="import">Import JSON</button><button class="small-button pink" data-action="reset">Clear my picks</button></div></div><div class="tool-card"><h3>Official sources & festival info</h3><p>Set times were captured November 5, 2026; the festival may adjust the schedule without updating this copy. Confirm changes in the official channels.</p><div class="source-links"><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/lineup/set-times/">Official set times</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/map/">Festival map</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/faq/">Festival FAQ</a><a target="_blank" rel="noopener noreferrer" href="https://orlando.edc.com/guide/health-wellness/">Health & safety</a></div></div><div class="footnote">Version 2 · ${SETS.length} scheduled performances · ${FESTIVAL_DAYS.length} festival days. This project is not an official EDC app, ticket, credential, or emergency alert service.</div>`}
   function eventDate(day, minute){const localDay=6+day+Math.floor(minute/1440);const m=minute%1440;return new Date(Date.UTC(2026,10,localDay,Math.floor(m/60)+5,m%60))}
   function stamp(date){return date.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}
   function icalEscape(str){return String(str).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
@@ -262,15 +297,294 @@ const SETS = RAW_SETS.trim().split('\n').map((line,id)=> {
   const alerted=new Set();
   view.addEventListener('input',e=>{if(e.target.id==='set-search'){const pos=e.target.selectionStart;state.search=e.target.value;view.innerHTML=renderLineup();const input=$('#set-search');if(input){input.focus();try{input.setSelectionRange(pos,pos)}catch{}}} else if(e.target.id==='display-name'){settings.friendName=e.target.value.slice(0,28);persist()}});
   view.addEventListener('change',e=>{if(e.target.id==='lead'){settings.lead=Number(e.target.value);persist();toast(`Calendar reminders set for ${settings.lead} minutes before.`)}});
-  view.addEventListener('click',async e=>{const btn=e.target.closest('button');if(!btn){if(state.tab==='map'&&state.drop){const canvas=e.target.closest('#map-canvas');if(canvas){const r=canvas.getBoundingClientRect();settings.meet={x:Math.max(0,Math.min(100,+((e.clientX-r.left)*100/r.width).toFixed(2))),y:Math.max(0,Math.min(100,+((e.clientY-r.top)*100/r.height).toFixed(2)))};state.drop=false;persist();render();toast('Meeting pin saved and included in shared links.')}}return}if(btn.dataset.tab){show(btn.dataset.tab);return}if(btn.dataset.day!==undefined){state.day=Number(btn.dataset.day);render();return}if(btn.dataset.mode){state.mode=btn.dataset.mode;render();return}if(btn.dataset.stage){state.stage=btn.dataset.stage;render();return}if(btn.dataset.planMode){state.planMode=btn.dataset.planMode;render();return}if(btn.dataset.pick!==undefined){const id=Number(btn.dataset.pick);settings.selected.has(id)?settings.selected.delete(id):settings.selected.add(id);persist();render();return}if(btn.dataset.spot){const coords={Kinetic:[63,55],Circuit:[19,38.5],Neon:[88,43],Stereo:[22,58.7],Bacardi:[44,71.2]}[btn.dataset.spot];state.mapZoom=Math.max(1.6,state.mapZoom);render();requestAnimationFrame(()=>{const map=$('#map-viewport');const canvas=$('#map-canvas');if(map&&canvas){map.scrollLeft=Math.max(0,canvas.clientWidth*coords[0]/100-map.clientWidth/2);map.scrollTop=Math.max(0,canvas.clientHeight*coords[1]/100-map.clientHeight/2)}});return}const a=btn.dataset.action;if(!a)return;switch(a){case 'share':await share();break;case 'copy-link':await copy(link(),location.protocol==='file:'?'Link copied, but local file links do not work for friends. Deploy the website first.':'Shareable link copied.');break;case 'copy-text':await copy(textPlan(),'Text schedule copied.');break;case 'calendar':exportIcs();break;case 'backup':backup();break;case 'import':$('#import-file').click();break;case 'reset':if(confirm('Clear all saved set selections on this device?')){settings.selected.clear();persist();render();toast('Saved picks cleared.')}break;case 'drop':state.drop=!state.drop;render();if(state.drop)toast('Tap the poster at the spot where you want to meet.');break;case 'clear-pin':settings.meet=null;persist();render();break;case 'zoom-in':state.mapZoom=Math.min(3.5,+(state.mapZoom+.4).toFixed(1));render();break;case 'zoom-out':state.mapZoom=Math.max(1,+(state.mapZoom-.4).toFixed(1));render();break;case 'copy-friend':if(state.friend){state.friend.ids.forEach(id=>settings.selected.add(id));persist();state.planMode='mine';render();toast('Added their picks to your schedule.')}break;case 'clear-friend':state.friend=null;state.planMode='mine';render();break;}});
+  view.addEventListener('click',async e=>{const btn=e.target.closest('button');if(!btn){if(state.tab==='map'&&state.drop){const canvas=e.target.closest('#map-canvas');if(canvas){const r=canvas.getBoundingClientRect();settings.meet={x:Math.max(0,Math.min(100,+((e.clientX-r.left)*100/r.width).toFixed(2))),y:Math.max(0,Math.min(100,+((e.clientY-r.top)*100/r.height).toFixed(2)))};state.drop=false;persist();render();toast('Meeting pin saved and included in shared links.')}}return}if(btn.dataset.tab){show(btn.dataset.tab);return}if(btn.dataset.day!==undefined){state.day=Number(btn.dataset.day);render();return}if(btn.dataset.mode){state.mode=btn.dataset.mode;render();return}if(btn.dataset.stage){state.stage=btn.dataset.stage;render();return}if(btn.dataset.planMode){state.planMode=btn.dataset.planMode;render();return}if(btn.dataset.pick!==undefined){const id=Number(btn.dataset.pick);settings.selected.has(id)?settings.selected.delete(id):settings.selected.add(id);persist();render();return}if(btn.dataset.spot){const coords={Kinetic:[63,55],Circuit:[19,38.5],Neon:[88,43],Stereo:[22,58.7],Bacardi:[44,71.2]}[btn.dataset.spot];state.mapZoom=Math.max(1.6,state.mapZoom);render();requestAnimationFrame(()=>{const map=$('#map-viewport');const canvas=$('#map-canvas');if(map&&canvas){map.scrollLeft=Math.max(0,canvas.clientWidth*coords[0]/100-map.clientWidth/2);map.scrollTop=Math.max(0,canvas.clientHeight*coords[1]/100-map.clientHeight/2)}});return}const a=btn.dataset.action;if(!a)return;switch(a){case 'sign-in':if(window.EDCPocketAuth?.signIn)await window.EDCPocketAuth.signIn();else toast('Google sign-in is not configured yet.');break;case 'sign-out':if(window.EDCPocketAuth?.signOut)await window.EDCPocketAuth.signOut();break;case 'save-screen-name':if(window.EDCPocketAuth?.saveName)await window.EDCPocketAuth.saveName(document.getElementById('screen-name')?.value||'');break;case 'retry-sync':if(window.EDCPocketAuth?.retrySync)await window.EDCPocketAuth.retrySync();break;case 'share':await share();break;case 'copy-link':await copy(link(),location.protocol==='file:'?'Link copied, but local file links do not work for friends. Deploy the website first.':'Shareable link copied.');break;case 'copy-text':await copy(textPlan(),'Text schedule copied.');break;case 'calendar':exportIcs();break;case 'backup':backup();break;case 'import':$('#import-file').click();break;case 'reset':if(confirm('Clear all saved set selections on this device?')){settings.selected.clear();persist();render();toast('Saved picks cleared.')}break;case 'drop':state.drop=!state.drop;render();if(state.drop)toast('Tap the poster at the spot where you want to meet.');break;case 'clear-pin':settings.meet=null;persist();render();break;case 'zoom-in':state.mapZoom=Math.min(3.5,+(state.mapZoom+.4).toFixed(1));render();break;case 'zoom-out':state.mapZoom=Math.max(1,+(state.mapZoom-.4).toFixed(1));render();break;case 'copy-friend':if(state.friend){state.friend.ids.forEach(id=>settings.selected.add(id));persist();state.planMode='mine';render();toast('Added their picks to your schedule.')}break;case 'clear-friend':state.friend=null;state.planMode='mine';render();break;}});
   $('#import-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const obj=JSON.parse(await file.text());if(obj.app!=='EDC Pocket'||!Array.isArray(obj.selected))throw Error('File is not an EDC Pocket backup');if(!confirm('Replace your current saved picks with this backup?'))return;settings.selected=new Set(obj.selected.filter(id=>Number.isInteger(id)&&id>=0&&id<SETS.length));settings.friendName=String(obj.friendName||'My schedule').slice(0,28);settings.lead=[5,10,15,20,30,60].includes(obj.lead)?obj.lead:15;settings.meet=obj.meet&&Number.isFinite(obj.meet.x)&&Number.isFinite(obj.meet.y)?obj.meet:null;persist();render();toast('Backup imported.')}catch(ex){toast(ex.message||'Could not import this backup.')}e.target.value=''});
   window.addEventListener('hashchange',()=>{decodeShared();render()});
   document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
-  document.getElementById('guest-backup')?.addEventListener('click',()=>show('tools'));
   decodeShared();render();checkUpcoming();setInterval(()=>{if(document.visibilityState!=='hidden')checkUpcoming()},30000);
   if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
 })();
 
-  </script>
+</script>
+  <script>
+/* EDC Pocket Firebase configuration.
+ * Create a separate Firebase project, register a Web app, and paste its public
+ * web configuration object here. Never put service-account/private keys here.
+ * The app runs in guest-only mode while this value is null.
+ */
+window.EDC_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAH9nlCQxY9wT_pv5pHV66vsHW8J--DVSM",
+  authDomain: "edc-planner-6410a.firebaseapp.com",
+  projectId: "edc-planner-6410a",
+  storageBucket: "edc-planner-6410a.firebasestorage.app",
+  messagingSenderId: "1050757114101",
+  appId: "1:1050757114101:web:705333d0368f2a09867dbc",
+  measurementId: "G-J498TMKJ0T"
+};
+
+</script>
+  <script type="module">
+/** EDC Pocket account and cloud migration. ES module; enabled only with a valid public Firebase config. */
+const bridge = window.EDCPocketBridge;
+const KEY = 'edcpocket_2026_v1'; // Existing storage key MUST NOT change.
+const OWNER_KEY = 'edcpocket_2026_local_owner';
+const BACKUP_KEY = 'edcpocket_2026_before_cloud';
+const MIGRATED = uid => `edcpocket_2026_migrated_${uid}`;
+const BASELINE = uid => `edcpocket_2026_last_cloud_${uid}`;
+let auth, db, activeUser, activeRef, stopListener;
+let connected = false;
+let pending = 0;
+let lastLocal = null;
+let queue = Promise.resolve();
+let screenName = '';
+let syncError = false;
+
+function announce(state, syncLabel = '', name = screenName) {
+  window.EDCPocketCloud = {state, syncLabel, screenName: name};
+  window.dispatchEvent(new Event('edcpocket:authstate'));
+}
+function alertError(message) { bridge.toast(message); }
+function safeSnapshot() { return bridge.read(); }
+function copyOf(snapshot) { return JSON.parse(JSON.stringify(snapshot)); }
+function safeSave(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); return true; }
+  catch { return false; }
+}
+function backupOriginal() {
+  try {
+    if (!localStorage.getItem(BACKUP_KEY)) {
+      const original = localStorage.getItem(KEY);
+      if (original !== null) localStorage.setItem(BACKUP_KEY, original);
+    }
+  } catch {}
+}
+function validName(value) {
+  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 28);
+}
+function selected(snapshot) {
+  return [...new Set((Array.isArray(snapshot?.selected) ? snapshot.selected : [])
+    .filter(id => Number.isInteger(id) && id >= 0 && id < bridge.setCount))];
+}
+function snapEqual(a,b) { return JSON.stringify(a) === JSON.stringify(b); }
+function clean(snapshot) {
+  return {selected:selected(snapshot),friendName:validName(snapshot?.friendName)||'My schedule',
+    lead:[5,10,15,20,30,60].includes(snapshot?.lead)?snapshot.lead:15, meet:snapshot?.meet??null};
+}
+function baselineFor(uid) {
+  try {return JSON.parse(localStorage.getItem(BASELINE(uid)));} catch {return null;}
+}
+function acknowledge(uid,remote) {safeSave(BASELINE(uid),clean(remote));}
+async function replayLocalEdits(F,ref,before,after) {
+  const old=clean(before), now=clean(after);
+  const prev=new Set(old.selected), current=new Set(now.selected);
+  const added=[...current].filter(id=>!prev.has(id));
+  const removed=[...prev].filter(id=>!current.has(id));
+  const prefs={};
+  if(old.friendName!==now.friendName)prefs.friendName=now.friendName;
+  if(old.lead!==now.lead)prefs.lead=now.lead;
+  if(JSON.stringify(old.meet)!==JSON.stringify(now.meet))prefs.meet=now.meet;
+  if(added.length)await F.setDoc(ref,{selected:F.arrayUnion(...added)},{merge:true});
+  if(removed.length)await F.setDoc(ref,{selected:F.arrayRemove(...removed)},{merge:true});
+  if(Object.keys(prefs).length)await F.setDoc(ref,prefs,{merge:true});
+}
+
+
+const config = window.EDC_FIREBASE_CONFIG;
+if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.appId) {
+  announce('unavailable', 'Device only');
+  window.EDCPocketAuth = {signIn:async()=>alertError('Google sign-in is not configured yet.'),signOut:async()=>{},saveName:async()=>{}};
+} else {
+  const [{initializeApp}, A, F] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js'),
+    import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js')
+  ]);
+  const app = initializeApp(config);
+  auth = A.getAuth(app);
+  db = F.initializeFirestore(app, {
+    localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})
+  });
+  await A.setPersistence(auth, A.browserLocalPersistence);
+  const provider = new A.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+
+  async function signIn() {
+    backupOriginal();
+    try {
+      await A.signInWithPopup(auth,provider);
+    } catch (e) {
+      if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') return;
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') {
+        alertError('Google sign-in popup was blocked. Open the website in Safari or Chrome and try again.');
+      } else {
+        alertError('Sign-in failed. Your saved picks are still on this device.');
+      }
+    }
+  }
+
+  async function signOut() {
+    if (pending || !connected || syncError) {
+      alertError('Your latest changes have not reached the cloud. Export a backup before signing out.');
+      return;
+    }
+    const uid = activeUser?.uid;
+    if (!uid) return;
+    safeSave(`edcpocket_2026_signedout_copy_${uid}`,safeSnapshot());
+    try {
+      await A.signOut(auth);
+      // Sign-out should not expose account data to the next guest on a shared device.
+      bridge.applyCloud({selected:[],friendName:'My schedule',lead:15,meet:null});
+      try { localStorage.setItem(OWNER_KEY,'guest'); } catch {}
+    } catch { alertError('Could not sign out.'); }
+  }
+
+  async function saveName(input) {
+    if (!activeUser || !connected) return alertError('Sign in first.');
+    const name = validName(input);
+    if (name.length < 2) return alertError('Choose a screen name of at least 2 characters.');
+    try {
+      await F.setDoc(F.doc(db,'users',activeUser.uid,'settings','profile'),
+        {screenName:name,updatedAt:F.serverTimestamp()}, {merge:true});
+      screenName=name;
+      announce('signed-in','Saved to cloud',name);
+      alertError('Screen name saved.');
+    } catch { alertError('Could not save the screen name. Try again online.'); }
+  }
+
+  function attachChanges(uid) {
+    function onLocalChange(event) {
+      if (!connected || activeUser?.uid !== uid) return;
+      const next=copyOf(event.detail);
+      const before=lastLocal || next;
+      if (snapEqual(before,next)) return;
+      lastLocal=next;
+      const prior=new Set(selected(before)), current=new Set(selected(next));
+      const added=[...current].filter(id=>!prior.has(id));
+      const removed=[...prior].filter(id=>!current.has(id));
+      const prefs={};
+      if (before.friendName!==next.friendName) prefs.friendName=validName(next.friendName)||'My schedule';
+      if (before.lead!==next.lead) prefs.lead=next.lead;
+      if (JSON.stringify(before.meet)!==JSON.stringify(next.meet)) prefs.meet=next.meet;
+      if (!added.length && !removed.length && !Object.keys(prefs).length) return;
+      pending++;
+      announce(navigator.onLine?'saving':'offline', navigator.onLine?'Saving…':'Waiting for connection');
+      queue=queue.catch(()=>{}).then(async()=>{
+        if (added.length) await F.setDoc(activeRef,{selected:F.arrayUnion(...added)},{merge:true});
+        if (removed.length) await F.setDoc(activeRef,{selected:F.arrayRemove(...removed)},{merge:true});
+        if (Object.keys(prefs).length) await F.setDoc(activeRef,prefs,{merge:true});
+      }).then(async()=>{
+        pending=Math.max(0,pending-1);
+        if (pending===0 && activeUser?.uid===uid) {
+          const beforeRead=copyOf(safeSnapshot());
+          const server=await F.getDocFromServer(activeRef);
+          // Another edit may have been made while the server request was in
+          // flight. Its own pending write will reconcile that selection.
+          if (pending===0 && activeUser?.uid===uid &&
+              snapEqual(clean(beforeRead),clean(safeSnapshot())) && server.exists()) {
+            lastLocal=copyOf(server.data());
+            acknowledge(uid,server.data());
+            bridge.applyCloud(server.data());
+            syncError=false;
+            announce('signed-in','Saved to cloud');
+          }
+        }
+      }).catch(()=>{
+        pending=Math.max(0,pending-1);
+        syncError=true;
+        announce('offline','Not synced · device copy saved');
+      });
+    }
+    window.addEventListener('edcpocket:change',onLocalChange);
+    return ()=>window.removeEventListener('edcpocket:change',onLocalChange);
+  }
+
+  let stopChanges=()=>{};
+  async function connect(user) {
+    if (stopListener) {stopListener();stopListener=null;}
+    stopChanges();stopChanges=()=>{};
+    connected=false;pending=0;syncError=false;activeUser=user;
+    if (!user) { activeRef=null;screenName='';announce('guest','Device only','');return; }
+    announce('saving','Checking saved schedule…');
+    activeRef=F.doc(db,'users',user.uid,'data','schedule');
+    backupOriginal();
+    const owner=(()=>{try{return localStorage.getItem(OWNER_KEY)}catch{return null}})();
+    const local=safeSnapshot();
+    // A previous user's device copy must never be merged into another user.
+    const importedBefore=Boolean(localStorage.getItem(MIGRATED(user.uid)));
+    const shouldImport=(!owner || owner==='guest' || owner===user.uid) && !importedBefore;
+    const baseline=(owner===user.uid)?baselineFor(user.uid):null;
+    try {
+      const original=await F.getDocFromServer(activeRef);
+      if (!original.exists()) {
+        const seed=(owner && owner!=='guest' && owner!==user.uid)
+          ? {selected:[],friendName:'My schedule',lead:15,meet:null}
+          : local;
+        await F.setDoc(activeRef,{...seed,selected:selected(seed),updatedAt:F.serverTimestamp()});
+      } else if (baseline && !snapEqual(clean(baseline),clean(local))) {
+        // Recover edits made while Firebase was unavailable/offline without
+        // overwriting unrelated changes from another device.
+        await replayLocalEdits(F,activeRef,baseline,local);
+      } else if ((shouldImport || (owner===user.uid&&!baseline)) && selected(local).length) {
+        await F.setDoc(activeRef,{selected:F.arrayUnion(...selected(local))}, {merge:true});
+      }
+      // Replay selections changed while Google authentication was completing.
+      // Never replace newer device edits with an older cloud snapshot.
+      let observedLocal=local;
+      for(let attempt=0;attempt<5;attempt++){
+        const newest=safeSnapshot();
+        if(snapEqual(clean(observedLocal),clean(newest)))break;
+        await replayLocalEdits(F,activeRef,observedLocal,newest);
+        observedLocal=newest;
+      }
+      const current=await F.getDocFromServer(activeRef);
+      if (!current.exists()) throw new Error('Schedule write not confirmed');
+      if(!snapEqual(clean(safeSnapshot()),clean(observedLocal))){
+        throw new Error('Device edits appeared during cloud restoration');
+      }
+      // Mark migration complete only after the server has acknowledged the data.
+      try {localStorage.setItem(MIGRATED(user.uid),'1');localStorage.setItem(OWNER_KEY,user.uid);}catch{}
+      const remote=current.data();
+      acknowledge(user.uid,remote);
+      lastLocal=copyOf(remote);
+      bridge.applyCloud(remote);
+      connected=true;
+      stopChanges=attachChanges(user.uid);
+      const profile=await F.getDocFromServer(F.doc(db,'users',user.uid,'settings','profile'));
+      screenName=profile.exists() ? validName(profile.data().screenName):'';
+      announce('signed-in','Saved to cloud');
+      stopListener=F.onSnapshot(activeRef,{includeMetadataChanges:true},snap=>{
+        if (activeUser?.uid!==user.uid || !connected || !snap.exists() || pending>0 || snap.metadata.hasPendingWrites) return;
+        if (snap.metadata.fromCache) {
+          announce('offline','Waiting for connection');
+          return;
+        }
+        const remote=snap.data();
+        if (!snapEqual(lastLocal,remote)) {
+          lastLocal=copyOf(remote);
+          acknowledge(user.uid,remote);
+          bridge.applyCloud(remote);
+        }
+        announce('signed-in','Saved to cloud');
+      },()=>announce('offline','Sync unavailable'));
+    } catch {
+      connected=false;
+      announce('offline','Not synced · device copy saved');
+      // Do not erase, replace, or claim to have uploaded existing device data.
+    }
+  }
+
+  A.onAuthStateChanged(auth,user=>{connect(user)});
+  window.addEventListener('online',()=>{
+    if(activeUser && (!connected || (syncError && pending===0))) connect(activeUser);
+  });
+  async function retrySync(){
+    if(!activeUser)return alertError('Sign in to enable cloud backup.');
+    if(pending)return alertError('Still saving. Check your connection.');
+    await connect(activeUser);
+  }
+  window.EDCPocketAuth={signIn,signOut,saveName,retrySync};
+}
+
+</script>
 </body>
 </html>
