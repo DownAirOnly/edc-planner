@@ -322,6 +322,7 @@ const KEY = 'edcpocket_2026_v1'; // Existing storage key MUST NOT change.
 const OWNER_KEY = 'edcpocket_2026_local_owner';
 const BACKUP_KEY = 'edcpocket_2026_before_cloud';
 const MIGRATED = uid => `edcpocket_2026_migrated_${uid}`;
+const BASELINE = uid => `edcpocket_2026_last_cloud_${uid}`;
 let auth, db, activeUser, activeRef, stopListener;
 let connected = false;
 let pending = 0;
@@ -357,6 +358,28 @@ function selected(snapshot) {
     .filter(id => Number.isInteger(id) && id >= 0 && id < bridge.setCount))];
 }
 function snapEqual(a,b) { return JSON.stringify(a) === JSON.stringify(b); }
+function clean(snapshot) {
+  return {selected:selected(snapshot),friendName:validName(snapshot?.friendName)||'My schedule',
+    lead:[5,10,15,20,30,60].includes(snapshot?.lead)?snapshot.lead:15, meet:snapshot?.meet??null};
+}
+function baselineFor(uid) {
+  try {return JSON.parse(localStorage.getItem(BASELINE(uid)));} catch {return null;}
+}
+function acknowledge(uid,remote) {safeSave(BASELINE(uid),clean(remote));}
+async function replayLocalEdits(F,ref,before,after) {
+  const old=clean(before), now=clean(after);
+  const prev=new Set(old.selected), current=new Set(now.selected);
+  const added=[...current].filter(id=>!prev.has(id));
+  const removed=[...prev].filter(id=>!current.has(id));
+  const prefs={};
+  if(old.friendName!==now.friendName)prefs.friendName=now.friendName;
+  if(old.lead!==now.lead)prefs.lead=now.lead;
+  if(JSON.stringify(old.meet)!==JSON.stringify(now.meet))prefs.meet=now.meet;
+  if(added.length)await F.setDoc(ref,{selected:F.arrayUnion(...added)},{merge:true});
+  if(removed.length)await F.setDoc(ref,{selected:F.arrayRemove(...removed)},{merge:true});
+  if(Object.keys(prefs).length)await F.setDoc(ref,prefs,{merge:true});
+}
+
 
 const config = window.EDC_FIREBASE_CONFIG;
 if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.appId) {
@@ -448,6 +471,7 @@ if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.app
           const server=await F.getDocFromServer(activeRef);
           if (server.exists()) {
             lastLocal=copyOf(server.data());
+            acknowledge(uid,server.data());
             bridge.applyCloud(server.data());
           }
           announce('signed-in','Saved to cloud');
@@ -474,7 +498,9 @@ if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.app
     const owner=(()=>{try{return localStorage.getItem(OWNER_KEY)}catch{return null}})();
     const local=safeSnapshot();
     // A previous user's device copy must never be merged into another user.
-    const shouldImport=(!owner || owner==='guest' || owner===user.uid) && !localStorage.getItem(MIGRATED(user.uid));
+    const importedBefore=Boolean(localStorage.getItem(MIGRATED(user.uid)));
+    const shouldImport=(!owner || owner==='guest' || owner===user.uid) && !importedBefore;
+    const baseline=(owner===user.uid)?baselineFor(user.uid):null;
     try {
       const original=await F.getDocFromServer(activeRef);
       if (!original.exists()) {
@@ -482,7 +508,11 @@ if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.app
           ? {selected:[],friendName:'My schedule',lead:15,meet:null}
           : local;
         await F.setDoc(activeRef,{...seed,selected:selected(seed),updatedAt:F.serverTimestamp()});
-      } else if (shouldImport && selected(local).length) {
+      } else if (baseline && !snapEqual(clean(baseline),clean(local))) {
+        // Recover edits made while Firebase was unavailable/offline without
+        // overwriting unrelated changes from another device.
+        await replayLocalEdits(F,activeRef,baseline,local);
+      } else if ((shouldImport || (owner===user.uid&&!baseline)) && selected(local).length) {
         await F.setDoc(activeRef,{selected:F.arrayUnion(...selected(local))}, {merge:true});
       }
       const current=await F.getDocFromServer(activeRef);
@@ -490,6 +520,7 @@ if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.app
       // Mark migration complete only after the server has acknowledged the data.
       try {localStorage.setItem(MIGRATED(user.uid),'1');localStorage.setItem(OWNER_KEY,user.uid);}catch{}
       const remote=current.data();
+      acknowledge(user.uid,remote);
       lastLocal=copyOf(remote);
       bridge.applyCloud(remote);
       connected=true;
@@ -506,6 +537,7 @@ if (!config?.apiKey || !config?.authDomain || !config?.projectId || !config?.app
         const remote=snap.data();
         if (!snapEqual(lastLocal,remote)) {
           lastLocal=copyOf(remote);
+          acknowledge(user.uid,remote);
           bridge.applyCloud(remote);
         }
         announce('signed-in','Saved to cloud');
