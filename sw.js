@@ -1,6 +1,6 @@
-const STATIC='edcpocket-static-v2';
+const STATIC='fest-static-v3';
 const MAP='edcpocket-map-v1';
-const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./fest.js'];
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(STATIC).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
